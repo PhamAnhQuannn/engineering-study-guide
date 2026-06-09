@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { isQuestionType, parseChoices } from "@/lib/questionTypes";
+import { parseRubric } from "@/lib/rubric";
 
 // Offline: pick a question from the imported docs bank. No AI.
 export async function POST(request: Request) {
@@ -51,6 +52,7 @@ export async function POST(request: Request) {
       choices: parseChoices(q.choices),
       type: q.type,
       referenceAnswer: q.referenceAnswer,
+      rubric: parseRubric(q.rubric),
       topic: { slug: topic.slug, name: topic.name },
     });
   } catch (err) {

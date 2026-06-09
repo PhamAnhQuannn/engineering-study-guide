@@ -6,7 +6,7 @@ import { isRating, scoreForRating, nextDueForRating, updateAvg } from "@/lib/spa
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { questionId, rating } = body ?? {};
+    const { questionId, rating, coverage } = body ?? {};
 
     if (typeof questionId !== "string") {
       return NextResponse.json({ error: "questionId is required." }, { status: 400 });
@@ -14,6 +14,9 @@ export async function POST(request: Request) {
     if (!isRating(rating)) {
       return NextResponse.json({ error: "rating must be again | good | easy." }, { status: 400 });
     }
+    // Optional: checklist coverage % (0-100) recorded with the attempt for weak-area analysis.
+    const coveragePct =
+      typeof coverage === "number" && coverage >= 0 && coverage <= 100 ? Math.round(coverage) : null;
 
     const question = await prisma.question.findUnique({
       where: { id: questionId },
@@ -29,7 +32,7 @@ export async function POST(request: Request) {
         questionId: question.id,
         userAnswer: "",
         score,
-        feedback: JSON.stringify({ rating }),
+        feedback: JSON.stringify(coveragePct === null ? { rating } : { rating, coverage: coveragePct }),
       },
     });
 

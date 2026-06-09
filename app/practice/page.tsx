@@ -15,6 +15,7 @@ interface ActiveQuestion {
   choices: string[] | null;
   type: QuestionTypeKey;
   referenceAnswer: string;
+  rubric: string[];
   topic: { slug: string; name: string };
 }
 
@@ -60,14 +61,14 @@ function PracticeInner() {
     loadQuestion();
   }, [topicSlug, type, loadQuestion]);
 
-  async function rate(rating: Rating) {
+  async function rate(rating: Rating, coverage?: number) {
     if (!question) return;
     setBusy(true);
     try {
       await fetch("/api/answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ questionId: question.id, rating }),
+        body: JSON.stringify({ questionId: question.id, rating, coverage }),
       });
     } finally {
       setBusy(false);
@@ -111,7 +112,7 @@ function PracticeInner() {
       </div>
 
       {status === "revealed" ? (
-        <RevealPanel answer={question.referenceAnswer} onRate={rate} busy={busy} />
+        <RevealPanel answer={question.referenceAnswer} rubric={question.rubric} onRate={rate} busy={busy} />
       ) : (
         <>
           <div>
