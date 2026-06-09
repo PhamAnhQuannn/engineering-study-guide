@@ -30,6 +30,17 @@ export function Markdown({ children }: { children: string }) {
         components={{
           h2: ({ children }) => <h2 id={slugify(toText(children))}>{children}</h2>,
           h3: ({ children }) => <h3 id={slugify(toText(children))}>{children}</h3>,
+          a: ({ href, children }) => {
+            // Doc-internal links (relative paths / *.md, authored for GitHub browsing)
+            // are meaningless in-app — render as plain text. Keep real + #anchor links.
+            const docLink =
+              !href ||
+              href.endsWith(".md") ||
+              href.startsWith("./") ||
+              href.startsWith("../") ||
+              href.startsWith("/docs");
+            return docLink ? <span>{children}</span> : <a href={href}>{children}</a>;
+          },
         }}
       >
         {children}
