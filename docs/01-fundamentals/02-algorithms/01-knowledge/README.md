@@ -1,127 +1,100 @@
-# Algorithms — Knowledge / Study Notes
+# Algorithms — Knowledge
 
-[← Topic overview](../README.md)
+An algorithm is a recipe for transforming input to output. Senior skill = recognizing which well-known pattern a problem reduces to, and reasoning about its cost.
 
-> Topic: Sorting, searching, recursion, DP, greedy, graph traversal.
+## Key concepts
 
-Algorithms are recipes for transforming input into output with proven correctness and bounded cost. At the senior bar, what matters is recognizing the **paradigm** a problem fits, choosing the right tradeoff, and reasoning about correctness and complexity — not memorizing code.
+### Binary search
+**What it is** — repeatedly halve a **sorted** range to find a target (or a boundary) in O(log n).
+**Example**
+```python
+import bisect
+i = bisect.bisect_left(sorted_ids, target)   # first index >= target
+```
+**Real situation** — find a row by key in a sorted index; "first version that fails" in a deploy bisect; threshold lookup.
+**Why it matters** — turns O(n) scans into O(log n). The trap is off-by-one on the boundary; reach for `bisect` instead of hand-rolling.
 
----
+### Two pointers / sliding window
+**What it is** — walk two indices over a sequence instead of nested loops, turning O(n²) into O(n).
+**Example**
+```python
+# longest run whose sum stays <= K
+l = total = best = 0
+for r, x in enumerate(nums):
+    total += x
+    while total > K: total -= nums[l]; l += 1
+    best = max(best, r - l + 1)
+```
+**Real situation** — "max requests in any 60-second window", dedup a sorted stream, merge two sorted lists.
+**Why it matters** — removes a whole loop. Works when data is sorted or the window grows/shrinks monotonically.
 
-## 1. Algorithmic paradigms (the master map)
+### Recursion & divide-and-conquer
+**What it is** — solve a problem by solving smaller copies and combining. Cost via the recurrence `T(n)=a·T(n/b)+f(n)`.
+**Example**
+```python
+def merge_sort(a):
+    if len(a) <= 1: return a
+    m = len(a) // 2
+    return merge(merge_sort(a[:m]), merge_sort(a[m:]))   # O(n log n)
+```
+**Real situation** — merge sort, quicksort, balanced-tree ops, map-reduce style aggregation.
+**Why it matters** — clean O(n log n) for sort/search. Watch recursion **depth** = stack space; deep recursion can overflow.
 
-| Paradigm | Core idea | Signal it applies | Examples |
-|---|---|---|---|
-| Brute force / enumeration | Try all candidates | Tiny N, baseline | subset generation |
-| Divide & conquer | Split, solve, combine | Problem splits into independent subproblems | mergesort, quicksort, binary search |
-| Greedy | Locally optimal choice = global optimum | Exchange argument / matroid holds | Dijkstra, Huffman, interval scheduling |
-| Dynamic programming | Overlapping subproblems + optimal substructure | Recurrence reuses subresults | knapsack, edit distance, LIS |
-| Backtracking | DFS with pruning | Constraint satisfaction | N-queens, sudoku, permutations |
-| Graph traversal | Explore nodes/edges | Relationships, reachability | BFS/DFS, topo sort, SCC |
-| Two pointers / sliding window | Move indices over sorted/sequential data | Subarray/substring with monotone property | longest substring, container with most water |
+### Sorting
+**What it is** — order elements; comparison sorts are Ω(n log n). Most languages ship an optimized stable hybrid (Timsort).
+**Example**
+```python
+rows.sort(key=lambda r: (r.tier, -r.score))   # multi-key, stable
+```
+**Real situation** — leaderboards, "process oldest first", preparing data so two-pointer / binary-search become possible.
+**Why it matters** — sorting once often unlocks cheaper later steps. Stable sort means secondary keys hold.
 
----
+### Greedy
+**What it is** — take the locally-best choice each step; correct only when the problem has the right structure (an exchange argument holds).
+**Example** — interval scheduling: always take the meeting that **ends earliest**.
+**Real situation** — task scheduling, Huffman coding, simple cache-eviction rules.
+**Why it matters** — simple and fast when valid. Danger: greedy is **wrong** for many problems (e.g. coin change with odd denominations) — you must justify it.
 
-## 2. Sorting
+### Dynamic programming (DP)
+**What it is** — break into overlapping subproblems and **remember** their answers (memoize) instead of recomputing.
+**Example**
+```python
+from functools import cache
+@cache
+def fib(n): return n if n < 2 else fib(n - 1) + fib(n - 2)   # O(n), not O(2^n)
+```
+**Real situation** — edit distance (spell-check / diff), knapsack-style allocation, "min cost path".
+**Why it matters** — collapses exponential brute force to polynomial by trading memory for time. The hard part is defining the state + transition.
 
-- **Comparison sorts** have a hard lower bound of **Ω(n log n)** (decision-tree argument: n! leaves need log₂(n!) ≈ n log n comparisons).
-- **Mergesort:** O(n log n) always, **stable**, O(n) extra space, predictable — good for external/linked-list sort and when stability matters.
-- **Quicksort:** O(n log n) average, **O(n²) worst** (bad pivots / already-sorted with naive pivot). In-place, cache-friendly, usually fastest in practice. Mitigate worst case with randomized/median-of-three pivots and introsort (switch to heapsort on deep recursion).
-- **Heapsort:** O(n log n) worst, in-place, **not stable**, poor cache locality vs quicksort.
-- **Non-comparison sorts** beat the bound by exploiting structure: **counting sort** O(n+k), **radix sort** O(d·(n+k)), **bucket sort** — only when keys are bounded integers/fixed-width.
-- **Hybrid real-world sorts:** Timsort (Python, Java objects) — stable, exploits existing runs, O(n) on nearly-sorted; introsort (C++ `std::sort`).
-- **Stability** matters when sorting by a secondary key after a primary, or preserving input order of equal elements.
+### Graph traversal (BFS / DFS)
+**What it is** — visit nodes via a queue (BFS = fewest hops) or stack/recursion (DFS = cycle detection, topological sort).
+**Example**
+```python
+from collections import deque
+def bfs(g, s):
+    seen, q = {s}, deque([s])
+    while q:
+        n = q.popleft()
+        for m in g[n]:
+            if m not in seen: seen.add(m); q.append(m)
+```
+**Real situation** — dependency resolution (topo sort), shortest path in an unweighted network, "is A reachable from B".
+**Why it matters** — most relationship problems are graph problems in disguise. BFS = fewest edges; Dijkstra = weighted shortest path.
 
----
+## When to use which
 
-## 3. Searching
+| Signal in the problem | Pattern |
+|---|---|
+| Sorted input, "find X" / boundary | Binary search |
+| Subarray / substring window, pairs | Two pointers / sliding window |
+| "Number of ways / min cost / longest…" with overlap | Dynamic programming |
+| "Pick best each step" + provable | Greedy |
+| Nodes & edges, reachability, shortest hops | BFS / DFS |
+| Need order, or to enable the above | Sort first |
 
-- **Linear search:** O(n), no precondition.
-- **Binary search:** O(log n) on a **sorted** array (or any monotone predicate). The senior framing: "binary search the *answer*" — if `feasible(x)` is monotone, binary-search x over the value range (e.g., minimize max load, Koko eating bananas, ship-within-D-days). Watch the classic bugs: integer overflow on `(lo+hi)/2` → use `lo + (hi-lo)/2`; off-by-one on inclusive vs exclusive bounds; infinite loop when bounds don't shrink.
-- **Hash-based lookup:** O(1) average if you can precompute a table.
-- **Exponential / interpolation search:** for unbounded or uniformly distributed data.
-
----
-
-## 4. Recursion & divide and conquer
-
-- A recursion = base case(s) + recursive case that reduces toward the base.
-- **Recursion ↔ iteration:** any recursion can be made iterative with an explicit stack; compilers may apply **tail-call optimization** (not in Python/Java by default → deep recursion risks stack overflow).
-- **Master Theorem** solves `T(n) = a·T(n/b) + f(n)`:
-  - Compare `f(n)` to `n^(log_b a)`. If f is smaller → O(n^log_b a); equal → O(n^log_b a · log n); larger (and regular) → O(f(n)).
-  - Mergesort: `2T(n/2) + O(n)` → O(n log n). Binary search: `T(n/2) + O(1)` → O(log n).
-
----
-
-## 5. Dynamic programming (DP)
-
-Two preconditions: **overlapping subproblems** (same subproblem recomputed) and **optimal substructure** (optimal solution builds from optimal sub-solutions).
-
-- **Top-down (memoization):** recursion + cache. Natural, only computes reachable states.
-- **Bottom-up (tabulation):** fill a table in dependency order. Often allows **space optimization** (keep only the last row/few states).
-- **Method:** define the state, the recurrence/transition, the base case, the answer location, and the evaluation order.
-- **Canonical families:**
-  - 1D: Fibonacci, climbing stairs, house robber, LIS (O(n log n) with patience sorting).
-  - 2D / sequence: edit distance, LCS, knapsack (0/1 and unbounded), coin change.
-  - Interval: matrix-chain, burst balloons.
-  - DP on trees / DAG: longest path in DAG, tree DP.
-- **Pitfall:** DP is not always optimal — if the state space is exponential, it's still exponential; and greedy or a direct formula may beat it.
-
----
-
-## 6. Greedy
-
-- Make the locally optimal choice and never reconsider. Fast and simple **when it's correct** — and proving correctness is the hard part.
-- **Proof techniques:** *exchange argument* (show any optimal solution can be transformed into the greedy one without getting worse); *matroid theory* (greedy is optimal iff the problem forms a matroid).
-- **Correct greedy:** interval scheduling (earliest finish time), Huffman coding, Dijkstra (non-negative weights), Kruskal/Prim MST, fractional knapsack.
-- **Greedy fails:** 0/1 knapsack, coin change with arbitrary denominations (needs DP).
-- Senior tell: always ask "does the greedy choice provably lead to a global optimum, or just a *feasible* solution?"
-
----
-
-## 7. Graph algorithms
-
-- **BFS** (queue): shortest path in **unweighted** graphs, level-order, bipartite check. O(V+E).
-- **DFS** (stack/recursion): cycle detection, **topological sort** (DAG ordering), connected components, strongly connected components (Tarjan/Kosaraju). O(V+E).
-- **Topological sort:** order a DAG so every edge points forward — used for build systems, task scheduling, dependency resolution. Cycle ⇒ no valid order.
-- **Shortest paths:**
-  - Dijkstra: non-negative weights, O((V+E) log V) with a heap.
-  - Bellman-Ford: handles negative edges, detects negative cycles, O(V·E).
-  - Floyd-Warshall: all-pairs, O(V³).
-  - A*: Dijkstra + admissible heuristic for goal-directed search.
-- **MST:** Kruskal (sort edges + union-find) or Prim (heap). Minimum total edge weight connecting all nodes.
-- **Union-Find:** near-O(1) amortized connectivity with path compression + union by rank.
-
----
-
-## 8. Common pitfalls & misconceptions
-
-- **"Quicksort is always O(n log n)."** No — O(n²) worst case; randomize the pivot or use introsort.
-- **Reaching for DP when greedy suffices** (or vice versa) — wasted complexity or wrong answers.
-- **Binary search off-by-one / overflow** — the most common interview bug. Pin down the invariant before coding.
-- **Recomputing in recursion** without memoization → exponential blowup (naive Fibonacci is O(φⁿ)).
-- **Deep recursion** in Python/Java → stack overflow; convert to iterative or raise the limit deliberately.
-- **Assuming Dijkstra works with negative edges** — it doesn't; use Bellman-Ford.
-- **Ignoring stability** when sorting on multiple keys.
-
----
-
-## 9. What interviewers probe
-
-- Can you **name the paradigm** before coding, and justify it?
-- Do you state the **recurrence/invariant** and complexity *before* implementation?
-- Can you reason about **worst case vs average** and how to harden the worst case?
-- Do you handle edge cases (empty input, single element, duplicates, overflow)?
-- Can you **prove** a greedy is correct (exchange argument), not just assert it?
-
----
-
-## Quick-reference summary
-
-- **Sorted data + monotone predicate →** binary search / two pointers.
-- **Independent splits →** divide & conquer.
-- **Overlapping subproblems + optimal substructure →** DP (memoize first, then tabulate, then optimize space).
-- **Provable local-optimal choice →** greedy (prove with exchange argument).
-- **Reachability / ordering / shortest path →** graph traversal (BFS unweighted, Dijkstra weighted-nonneg, Bellman-Ford if negatives).
-- **Default sort:** an introsort/Timsort hybrid; choose mergesort for stability, counting/radix for bounded integer keys.
-- Always state **time and space complexity** and the **worst case**, and harden it.
+## Pitfalls
+- Greedy that *feels* right but isn't — prove it or use DP.
+- Binary-search off-by-one — prefer `bisect` / a fixed template.
+- Forgetting recursion depth = stack space (deep recursion → overflow).
+- Quicksort is O(n²) worst case on bad pivots; know average vs worst.
+- DP without a clear state definition → wrong or duplicated subproblems.
