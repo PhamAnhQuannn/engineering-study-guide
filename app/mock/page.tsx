@@ -166,19 +166,19 @@ export default function MockPage() {
             your time {fmtClock(meta.timeTakenSec)} {meta.overTime ? "⚑ over" : ""}
           </span>
         </div>
-        <div className="rounded-lg border border-black/10 dark:border-white/15 p-4">
+        <div className="rounded-lg border border-border bg-surface p-4">
           <Markdown>{item.prompt}</Markdown>
         </div>
         <div>
           <p className="text-sm opacity-60 mb-1">Your answer{meta.skipped ? " (skipped)" : ""}:</p>
-          <pre className="whitespace-pre-wrap text-sm rounded-lg border border-black/10 dark:border-white/15 p-3 min-h-[3rem]">
+          <pre className="whitespace-pre-wrap text-sm rounded-lg border border-border bg-surface p-3 min-h-[3rem]">
             {meta.text || "—"}
           </pre>
         </div>
 
         {isMcq ? (
           <div className="flex flex-col gap-3">
-            <div className="rounded-lg border border-black/10 dark:border-white/15 p-4">
+            <div className="rounded-lg border border-border bg-surface p-4">
               <h3 className="font-semibold mb-2">Correct answer</h3>
               <Markdown>{item.referenceAnswer}</Markdown>
             </div>
@@ -190,7 +190,7 @@ export default function MockPage() {
               onClick={() =>
                 finish({ ...base, score: correct ? 100 : 0 }, correct ? "good" : "again")
               }
-              className="self-start rounded-lg bg-foreground text-background px-5 py-2.5 font-medium hover:opacity-90 disabled:opacity-40"
+              className="self-start rounded-lg bg-accent text-accent-foreground px-5 py-2.5 font-medium hover:opacity-90 disabled:opacity-40"
             >
               Next →
             </button>
@@ -237,7 +237,7 @@ function Setup({ onStart }: { onStart: (payload: object) => void }) {
           <button
             key={t.id}
             onClick={() => onStart({ templateId: t.id })}
-            className="text-left rounded-lg border border-black/10 dark:border-white/15 p-4 hover:border-black/30 dark:hover:border-white/40"
+            className="text-left rounded-lg border border-border bg-surface p-4 hover:border-accent/50"
           >
             <div className="font-medium">{t.label}</div>
             <div className="text-xs opacity-60 mt-1">{t.blurb}</div>
@@ -245,7 +245,7 @@ function Setup({ onStart }: { onStart: (payload: object) => void }) {
         ))}
         <button
           onClick={() => setCustom((c) => !c)}
-          className={`text-left rounded-lg border p-4 ${custom ? "border-blue-500 bg-blue-500/10" : "border-black/10 dark:border-white/15 hover:border-black/30"}`}
+          className={`text-left rounded-md border p-4 ${custom ? "border-accent bg-accent/10" : "border-border bg-surface hover:border-accent/50"}`}
         >
           <div className="font-medium">Custom</div>
           <div className="text-xs opacity-60 mt-1">Build your own</div>
@@ -253,7 +253,7 @@ function Setup({ onStart }: { onStart: (payload: object) => void }) {
       </div>
 
       {custom && (
-        <div className="rounded-lg border border-black/10 dark:border-white/15 p-4 flex flex-col gap-4">
+        <div className="rounded-lg border border-border bg-surface p-4 flex flex-col gap-4">
           <div>
             <p className="text-sm font-semibold mb-2">Question types</p>
             <div className="flex flex-wrap gap-2">
@@ -279,17 +279,17 @@ function Setup({ onStart }: { onStart: (payload: object) => void }) {
           <div className="flex gap-4 items-center text-sm">
             <label className="flex items-center gap-2">
               Count
-              <input type="number" min={1} max={20} value={count} onChange={(e) => setCount(Number(e.target.value))} className="w-16 rounded border border-black/15 dark:border-white/20 px-2 py-1 bg-transparent" />
+              <input type="number" min={1} max={20} value={count} onChange={(e) => setCount(Number(e.target.value))} className="w-16 rounded border border-border px-2 py-1 bg-transparent" />
             </label>
             <label className="flex items-center gap-2">
               Min/question
-              <input type="number" min={1} max={60} value={minutes} onChange={(e) => setMinutes(Number(e.target.value))} className="w-16 rounded border border-black/15 dark:border-white/20 px-2 py-1 bg-transparent" />
+              <input type="number" min={1} max={60} value={minutes} onChange={(e) => setMinutes(Number(e.target.value))} className="w-16 rounded border border-border px-2 py-1 bg-transparent" />
             </label>
           </div>
           <button
             disabled={types.length === 0}
             onClick={() => onStart({ config: { types, tiers, count, perQuestionSec: minutes * 60 } })}
-            className="self-start rounded-lg bg-foreground text-background px-5 py-2.5 font-medium hover:opacity-90 disabled:opacity-40"
+            className="self-start rounded-lg bg-accent text-accent-foreground px-5 py-2.5 font-medium hover:opacity-90 disabled:opacity-40"
           >
             Start custom mock →
           </button>
@@ -348,17 +348,17 @@ function RunQuestion({
         </span>
       </div>
 
-      <div className="rounded-lg border border-black/10 dark:border-white/15 p-4">
+      <div className="rounded-lg border border-border bg-surface p-4">
         <Markdown>{item.prompt}</Markdown>
       </div>
 
       <AnswerInput type={item.type} choices={item.choices} value={answer} onChange={onAnswer} />
 
       <div className="flex gap-3">
-        <button onClick={() => onSkip(elapsed())} className="rounded-lg border border-black/15 dark:border-white/20 px-4 py-2">
+        <button onClick={() => onSkip(elapsed())} className="rounded-lg border border-border px-4 py-2">
           Skip
         </button>
-        <button onClick={() => onSubmit(elapsed())} className="rounded-lg bg-foreground text-background px-5 py-2.5 font-medium hover:opacity-90">
+        <button onClick={() => onSubmit(elapsed())} className="rounded-lg bg-accent text-accent-foreground px-5 py-2.5 font-medium hover:opacity-90">
           Submit &amp; next →
         </button>
         <button onClick={onEnd} className="ml-auto text-sm opacity-50 hover:opacity-100">
@@ -375,8 +375,8 @@ function Bar({ label, value, weak }: { label: string; value: number; weak?: bool
   return (
     <div className="flex items-center gap-2 text-sm">
       <span className="w-40 truncate">{label}</span>
-      <span className="flex-1 h-2 rounded bg-black/10 dark:bg-white/15 overflow-hidden">
-        <span className="block h-full bg-blue-500" style={{ width: `${value}%` }} />
+      <span className="flex-1 h-2 rounded bg-surface-2 overflow-hidden">
+        <span className="block h-full bg-accent" style={{ width: `${value}%` }} />
       </span>
       <span className="w-14 text-right font-medium">{value}</span>
       {weak && <span className="text-amber-600 dark:text-amber-400">⚑</span>}
@@ -435,10 +435,10 @@ function Scorecard({ card, onDone }: { card: ReturnType<typeof scorecard>; onDon
       )}
 
       <div className="flex gap-3">
-        <button onClick={onDone} className="rounded-lg bg-foreground text-background px-5 py-2.5 font-medium hover:opacity-90">
+        <button onClick={onDone} className="rounded-lg bg-accent text-accent-foreground px-5 py-2.5 font-medium hover:opacity-90">
           Done
         </button>
-        <Link href="/progress" className="rounded-lg border border-black/15 dark:border-white/20 px-4 py-2.5">
+        <Link href="/progress" className="rounded-lg border border-border px-4 py-2.5">
           View progress
         </Link>
       </div>

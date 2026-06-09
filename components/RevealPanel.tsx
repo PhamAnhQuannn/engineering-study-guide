@@ -29,7 +29,7 @@ export function RevealPanel({
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="rounded-lg border border-black/10 dark:border-white/15 p-4">
+      <div className="rounded-lg border border-border bg-surface p-4">
         <h3 className="font-semibold mb-2">Model answer</h3>
         <Markdown>{answer}</Markdown>
       </div>

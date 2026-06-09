@@ -41,7 +41,7 @@ export default async function TopicPage(props: PageProps<"/topic/[slug]">) {
         {note && (
           <Link
             href={`/topic/${slug}/study`}
-            className="inline-block mt-3 rounded-lg border border-black/15 dark:border-white/20 px-4 py-2 text-sm hover:border-black/40 dark:hover:border-white/50"
+            className="inline-block mt-3 rounded-md border border-border px-4 py-2 text-sm hover:border-accent/50"
           >
             📖 Study notes
           </Link>

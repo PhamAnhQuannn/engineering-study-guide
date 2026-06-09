@@ -35,7 +35,7 @@ export function ChecklistGrade({
   const suggested = suggestRating(pct);
 
   return (
-    <fieldset className="rounded-lg border border-black/10 dark:border-white/15 p-4">
+    <fieldset className="rounded-lg border border-border bg-surface p-4">
       <legend className="px-1 text-sm font-semibold">What a strong answer covers</legend>
       <ul className="flex flex-col gap-1">
         {rubric.map((item, i) => (
@@ -45,7 +45,7 @@ export function ChecklistGrade({
                 type="checkbox"
                 checked={checked[i]}
                 onChange={() => toggle(i)}
-                className="mt-1 h-4 w-4 accent-blue-600"
+                className="mt-1 h-4 w-4 accent-cyan-500"
               />
               <span className="text-sm">{item}</span>
             </label>

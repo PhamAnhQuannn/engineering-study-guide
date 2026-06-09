@@ -28,8 +28,8 @@ export function AnswerInput({
             key={c}
             className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
               value === c
-                ? "border-blue-500 bg-blue-500/10"
-                : "border-black/10 dark:border-white/15 hover:border-black/30 dark:hover:border-white/40"
+                ? "border-accent bg-accent/10"
+                : "border-border bg-surface hover:border-accent/50"
             } ${disabled ? "pointer-events-none opacity-70" : ""}`}
           >
             <input
@@ -49,7 +49,7 @@ export function AnswerInput({
 
   if (mode === "code") {
     return (
-      <div className="rounded-lg border border-black/10 dark:border-white/15 overflow-hidden">
+      <div className="rounded-md border border-border overflow-hidden">
         <MonacoEditor
           height="320px"
           defaultLanguage="python"
@@ -74,7 +74,7 @@ export function AnswerInput({
       disabled={disabled}
       rows={10}
       placeholder="Type your answer…"
-      className="w-full rounded-lg border border-black/10 dark:border-white/15 bg-transparent p-3 outline-none focus:border-blue-500 disabled:opacity-70"
+      className="w-full rounded-md border border-border bg-surface p-3 outline-none focus:border-accent disabled:opacity-70"
     />
   );
 }

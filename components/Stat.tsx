@@ -1,4 +1,4 @@
-// Shared stat card. Server component (no client state).
+// Shared stat card. Mono tabular value, uppercase mono label (dev-tool aesthetic).
 export function Stat({
   label,
   value,
@@ -9,9 +9,9 @@ export function Stat({
   className?: string;
 }) {
   return (
-    <div className="rounded-lg border border-black/10 dark:border-white/15 p-3">
-      <div className="text-xs opacity-60">{label}</div>
-      <div className={`text-xl font-bold ${className}`}>{value}</div>
+    <div className="rounded-md border border-border bg-surface p-3">
+      <div className="font-mono text-[0.65rem] uppercase tracking-wider text-muted">{label}</div>
+      <div className={`mt-1 text-xl font-bold num ${className}`}>{value}</div>
     </div>
   );
 }

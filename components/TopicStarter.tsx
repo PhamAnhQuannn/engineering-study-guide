@@ -33,8 +33,8 @@ export function TopicStarter({
                 onClick={() => setType(key)}
                 className={`text-left rounded-lg border p-3 transition-colors ${
                   active
-                    ? "border-blue-500 bg-blue-500/10"
-                    : "border-black/10 dark:border-white/15 hover:border-black/30 dark:hover:border-white/40"
+                    ? "border-accent bg-accent/10"
+                    : "border-border bg-surface hover:border-accent/50"
                 }`}
               >
                 <div className="flex justify-between items-center">
@@ -50,7 +50,7 @@ export function TopicStarter({
 
       <button
         onClick={start}
-        className="self-start rounded-lg bg-foreground text-background px-5 py-2.5 font-medium hover:opacity-90"
+        className="self-start rounded-lg bg-accent text-accent-foreground px-5 py-2.5 font-medium hover:opacity-90"
       >
         Start practice →
       </button>

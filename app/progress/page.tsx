@@ -43,7 +43,7 @@ export default async function ProgressPage() {
           </div>
           <Link
             href={`/topic/${dueForReview[0].slug}`}
-            className="shrink-0 rounded-lg bg-foreground text-background px-4 py-2 text-sm font-medium hover:opacity-90"
+            className="shrink-0 rounded-lg bg-accent text-accent-foreground px-4 py-2 text-sm font-medium hover:opacity-90"
           >
             Review now →
           </Link>
@@ -78,7 +78,7 @@ export default async function ProgressPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left opacity-60 border-b border-black/10 dark:border-white/15">
+              <tr className="text-left text-muted border-b border-border">
                 <th className="py-2 pr-4">Topic</th>
                 <th className="py-2 pr-4">Attempts</th>
                 <th className="py-2 pr-4">Avg</th>
@@ -88,7 +88,7 @@ export default async function ProgressPage() {
             </thead>
             <tbody>
               {attempted.map((t) => (
-                <tr key={t.slug} className="border-b border-black/5 dark:border-white/10">
+                <tr key={t.slug} className="border-b border-border/60">
                   <td className="py-2 pr-4">
                     <Link href={`/topic/${t.slug}`} className="hover:underline">
                       {t.name}

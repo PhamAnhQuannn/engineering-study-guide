@@ -81,10 +81,10 @@ function PracticeInner() {
       <div className="flex flex-col gap-4">
         <p className="text-red-600 dark:text-red-400">{error}</p>
         <div className="flex gap-3">
-          <button onClick={loadQuestion} className="rounded-lg border border-black/15 dark:border-white/20 px-4 py-2">
+          <button onClick={loadQuestion} className="rounded-lg border border-border px-4 py-2">
             Retry
           </button>
-          <Link href="/" className="rounded-lg border border-black/15 dark:border-white/20 px-4 py-2">
+          <Link href="/" className="rounded-lg border border-border px-4 py-2">
             Back to topics
           </Link>
         </div>
@@ -107,7 +107,7 @@ function PracticeInner() {
         <span className="opacity-50">{typeLabel}</span>
       </div>
 
-      <div className="rounded-lg border border-black/10 dark:border-white/15 p-4">
+      <div className="rounded-lg border border-border bg-surface p-4">
         <Markdown>{question.prompt}</Markdown>
       </div>
 
@@ -128,7 +128,7 @@ function PracticeInner() {
           </div>
           <button
             onClick={() => setStatus("revealed")}
-            className="self-start rounded-lg bg-foreground text-background px-5 py-2.5 font-medium hover:opacity-90"
+            className="self-start rounded-lg bg-accent text-accent-foreground px-5 py-2.5 font-medium hover:opacity-90"
           >
             Reveal answer
           </button>

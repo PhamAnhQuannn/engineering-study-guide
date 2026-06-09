@@ -17,9 +17,13 @@ export default async function Dashboard() {
   return (
     <div className="flex flex-col gap-10">
       <section>
-        <h1 className="text-2xl font-bold">Senior Backend Interview Prep</h1>
-        <p className="opacity-70 mt-1">
-          Practice every topic from fundamentals to product. Self-graded with spaced repetition — fully offline.
+        <p className="font-mono text-xs uppercase tracking-wider text-accent">Senior backend · interview prep</p>
+        <h1 className="mt-1 text-3xl md:text-4xl font-bold tracking-tight">
+          Drill the bank. Pass the loop.
+        </h1>
+        <p className="text-muted mt-2 max-w-xl">
+          Every topic from fundamentals to product — self-graded with spaced repetition, checklists, and timed mock
+          interviews. Fully offline.
         </p>
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Stat label="Attempts" value={String(overall.totalAttempts)} />
@@ -30,6 +34,20 @@ export default async function Dashboard() {
           />
           <Stat label="Topics started" value={`${overall.topicsAttempted}/${overall.totalTopics}`} />
           <Stat label="Due for review" value={String(dueForReview.length)} />
+        </div>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link
+            href="/mock"
+            className="rounded-md bg-accent text-accent-foreground px-5 py-2.5 font-medium hover:opacity-90 transition-opacity"
+          >
+            Start mock interview →
+          </Link>
+          <Link
+            href="/progress"
+            className="rounded-md border border-border px-4 py-2.5 hover:bg-surface-2 transition-colors"
+          >
+            View progress
+          </Link>
         </div>
       </section>
 
@@ -73,12 +91,12 @@ export default async function Dashboard() {
                 <Link
                   key={t.slug}
                   href={`/topic/${t.slug}`}
-                  className="rounded-lg border border-black/10 dark:border-white/15 p-3 hover:border-black/30 dark:hover:border-white/40 transition-colors"
+                  className="rounded-lg border border-border bg-surface p-3 hover:border-accent/50 transition-colors"
                 >
                   <div className="flex justify-between items-start gap-2">
                     <span className="font-medium">{t.name}</span>
                     {t.attempts > 0 && (
-                      <span className={`text-sm font-semibold ${scoreColor(t.avgScore)}`}>
+                      <span className={`text-sm font-semibold num ${scoreColor(t.avgScore)}`}>
                         {t.avgScore}
                       </span>
                     )}
@@ -100,7 +118,7 @@ export default async function Dashboard() {
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-black/10 dark:border-white/15 p-4">
+    <div className="rounded-lg border border-border bg-surface p-4">
       <h3 className="font-semibold mb-2">{title}</h3>
       <div className="flex flex-col gap-1 text-sm">{children}</div>
     </div>

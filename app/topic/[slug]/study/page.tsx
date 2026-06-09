@@ -23,7 +23,7 @@ export default async function StudyPage(props: PageProps<"/topic/[slug]/study">)
       </div>
 
       {note ? (
-        <article className="rounded-lg border border-black/10 dark:border-white/15 p-5">
+        <article className="rounded-md border border-border bg-surface p-5">
           <Markdown>{note.markdown}</Markdown>
         </article>
       ) : (
@@ -32,7 +32,7 @@ export default async function StudyPage(props: PageProps<"/topic/[slug]/study">)
 
       <Link
         href={`/topic/${slug}`}
-        className="self-start rounded-lg bg-foreground text-background px-5 py-2.5 font-medium hover:opacity-90"
+        className="self-start rounded-md bg-accent text-accent-foreground px-5 py-2.5 font-medium hover:opacity-90"
       >
         Practice this topic →
       </Link>
