@@ -1,0 +1,69 @@
+// Interview prep — single-user SQLite schema.
+// SQLite has no arrays/JSON columns, so list/object fields are stored as JSON strings.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Topic {
+  id             String     @id @default(cuid())
+  tier           Int
+  name           String
+  slug           String     @unique
+  description    String
+  difficulty     String // intro | core | advanced
+  supportedTypes String // JSON string[] of question-type keys
+  questions      Question[]
+  createdAt      DateTime   @default(now())
+}
+
+model Question {
+  id              String    @id @default(cuid())
+  extId           String?   @unique // stable import key: <topicSlug>:<category>:<n>
+  topic           Topic     @relation(fields: [topicId], references: [id])
+  topicId         String
+  type            String // question-type key (KNOWLEDGE, CODING, ...)
+  difficulty      String
+  prompt          String
+  choices         String? // JSON string[] for MCQ, else null
+  referenceAnswer String
+  rubric          String // JSON string[] of grading criteria
+  source          String    @default("llm")
+  seen            Boolean   @default(false) // true once served to user
+  attempts        Attempt[]
+  createdAt       DateTime  @default(now())
+
+  @@index([topicId, type, difficulty])
+}
+
+model Attempt {
+  id         String   @id @default(cuid())
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId String
+  userAnswer String
+  score      Int // 0-100
+  feedback   String // JSON { strengths[], gaps[], modelAnswer, followUp }
+  createdAt  DateTime @default(now())
+}
+
+model TopicProgress {
+  id        String    @id @default(cuid())
+  topicSlug String    @unique
+  attempts  Int       @default(0)
+  avgScore  Float     @default(0)
+  lastSeen  DateTime?
+  nextDue   DateTime?
+  updatedAt DateTime  @updatedAt
+}
+
+model StudyNote {
+  id        String   @id @default(cuid())
+  topicSlug String   @unique
+  markdown  String
+  updatedAt DateTime @updatedAt
+}

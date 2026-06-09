@@ -1,0 +1,14 @@
+# Communication
+
+Design docs, RFCs, stakeholder mgmt, push-back.
+
+**Tier 10 — Senior Behavioral & Leadership** · Difficulty: core
+
+## Sections
+
+- [Knowledge / Study Notes](./01-knowledge/README.md)
+- [Decision & Tradeoff Questions](./02-decision-questions/README.md)
+- [Real-World Situations](./03-real-situations/README.md)
+- [Behavioral (STAR) Questions](./04-behavioral-questions/README.md)
+
+[← Back to Senior Behavioral & Leadership](../README.md)

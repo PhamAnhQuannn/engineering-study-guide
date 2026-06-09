@@ -24,6 +24,11 @@
 .DS_Store
 *.pem
 
+# claude code project scope (.claude/skills is a junction back to /skills — don't double-track)
+/.claude/
+# vendored Claude Code skills (tooling, not app code)
+/skills/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -39,3 +44,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# prisma generated client + local db
+/generated/prisma
+/dev.db
+/dev.db-journal
+/prisma/dev.db
+
+# docs build artifact (regenerate with db:scaffold)
+/docs/.manifest.json
