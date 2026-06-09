@@ -1,15 +1,9 @@
 import Link from "next/link";
 import { getProgressSummary } from "@/lib/progress";
+import { scoreColor } from "@/lib/score";
+import { Stat } from "@/components/Stat";
 
 export const dynamic = "force-dynamic";
-
-function scoreColor(score: number | null): string {
-  if (score == null) return "opacity-40";
-  if (score < 50) return "text-red-600 dark:text-red-400";
-  if (score < 70) return "text-amber-600 dark:text-amber-400";
-  if (score < 85) return "text-blue-600 dark:text-blue-400";
-  return "text-green-600 dark:text-green-400";
-}
 
 function fmt(d: Date | null): string {
   if (!d) return "—";
@@ -17,7 +11,7 @@ function fmt(d: Date | null): string {
 }
 
 export default async function ProgressPage() {
-  const { overall, perTopic } = await getProgressSummary();
+  const { overall, perTopic, weakAreas, dueForReview } = await getProgressSummary();
   const attempted = perTopic.filter((t) => t.attempts > 0);
 
   return (
@@ -32,8 +26,49 @@ export default async function ProgressPage() {
             className={scoreColor(overall.avgScore)}
           />
           <Stat label="Topics started" value={`${overall.topicsAttempted}/${overall.totalTopics}`} />
+          <Stat label="Due for review" value={String(dueForReview.length)} />
         </div>
       </div>
+
+      {dueForReview.length > 0 && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-4 flex items-center justify-between gap-4">
+          <div>
+            <p className="font-semibold">
+              ⏰ {dueForReview.length} topic{dueForReview.length > 1 ? "s" : ""} due for review
+            </p>
+            <p className="text-sm opacity-70">
+              Most overdue:{" "}
+              {dueForReview.slice(0, 4).map((t) => t.name).join(", ")}
+            </p>
+          </div>
+          <Link
+            href={`/topic/${dueForReview[0].slug}`}
+            className="shrink-0 rounded-lg bg-foreground text-background px-4 py-2 text-sm font-medium hover:opacity-90"
+          >
+            Review now →
+          </Link>
+        </div>
+      )}
+
+      {weakAreas.length > 0 && (
+        <section>
+          <h2 className="font-semibold mb-2">Weak areas (avg &lt; 70)</h2>
+          <div className="flex flex-col gap-1 text-sm">
+            {weakAreas.slice(0, 8).map((t) => (
+              <Link
+                key={t.slug}
+                href={`/topic/${t.slug}`}
+                className="flex justify-between hover:underline"
+              >
+                <span>
+                  {t.name} <span className="opacity-50">⚑ weak</span>
+                </span>
+                <span className={`font-semibold ${scoreColor(t.avgScore)}`}>{t.avgScore}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {attempted.length === 0 ? (
         <p className="opacity-60">
@@ -70,15 +105,6 @@ export default async function ProgressPage() {
           </table>
         </div>
       )}
-    </div>
-  );
-}
-
-function Stat({ label, value, className = "" }: { label: string; value: string; className?: string }) {
-  return (
-    <div className="rounded-lg border border-black/10 dark:border-white/15 p-3">
-      <div className="text-xs opacity-60">{label}</div>
-      <div className={`text-xl font-bold ${className}`}>{value}</div>
     </div>
   );
 }

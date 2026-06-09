@@ -11,6 +11,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:scaffold": "tsx scripts/scaffold-docs.ts",
     "db:import": "tsx scripts/import-docs.ts",
+    "db:coverage": "tsx scripts/coverage-report.ts",
     "db:studio": "prisma studio"
   },
   "dependencies": {

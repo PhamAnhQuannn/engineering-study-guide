@@ -22,10 +22,15 @@ export function scoreForRating(rating: Rating): number {
   }
 }
 
+// Next-review interval per rating (named so tuning lives in one place).
+export const SR_INTERVAL_MS: Record<Rating, number> = {
+  again: 8 * HOUR_MS,
+  good: 3 * DAY_MS,
+  easy: 14 * DAY_MS,
+};
+
 export function nextDueForRating(rating: Rating, now: Date = new Date()): Date {
-  const ms =
-    rating === "again" ? 8 * HOUR_MS : rating === "good" ? 3 * DAY_MS : 14 * DAY_MS;
-  return new Date(now.getTime() + ms);
+  return new Date(now.getTime() + SR_INTERVAL_MS[rating]);
 }
 
 // Running average across attempts.

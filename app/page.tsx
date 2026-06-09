@@ -1,16 +1,10 @@
 import Link from "next/link";
 import { TIERS } from "@/lib/taxonomy";
 import { getProgressSummary } from "@/lib/progress";
+import { scoreColor } from "@/lib/score";
+import { Stat } from "@/components/Stat";
 
 export const dynamic = "force-dynamic";
-
-function scoreColor(score: number | null): string {
-  if (score == null) return "opacity-40";
-  if (score < 50) return "text-red-600 dark:text-red-400";
-  if (score < 70) return "text-amber-600 dark:text-amber-400";
-  if (score < 85) return "text-blue-600 dark:text-blue-400";
-  return "text-green-600 dark:text-green-400";
-}
 
 export default async function Dashboard() {
   const { overall, perTopic, weakAreas, dueForReview } = await getProgressSummary();
@@ -25,7 +19,7 @@ export default async function Dashboard() {
       <section>
         <h1 className="text-2xl font-bold">Senior Backend Interview Prep</h1>
         <p className="opacity-70 mt-1">
-          Practice every topic from fundamentals to product. Questions are generated and graded by AI.
+          Practice every topic from fundamentals to product. Self-graded with spaced repetition — fully offline.
         </p>
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Stat label="Attempts" value={String(overall.totalAttempts)} />
@@ -100,15 +94,6 @@ export default async function Dashboard() {
           </section>
         );
       })}
-    </div>
-  );
-}
-
-function Stat({ label, value, className = "" }: { label: string; value: string; className?: string }) {
-  return (
-    <div className="rounded-lg border border-black/10 dark:border-white/15 p-3">
-      <div className="text-xs opacity-60">{label}</div>
-      <div className={`text-xl font-bold ${className}`}>{value}</div>
     </div>
   );
 }
