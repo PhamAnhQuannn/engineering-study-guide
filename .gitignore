@@ -26,8 +26,9 @@
 
 # claude code project scope (.claude/skills is a junction back to /skills — don't double-track)
 /.claude/
-# vendored Claude Code skills (tooling, not app code)
-/skills/
+# vendored Claude Code skills (tooling, not app code) — except project-owned ones
+/skills/*
+!/skills/mock-interview/
 
 # debug
 npm-debug.log*
