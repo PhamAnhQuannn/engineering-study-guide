@@ -20,8 +20,19 @@ interface Tier {
 }
 
 // Topic-first searchable index (GfG-style). Client-side instant filter, offline.
-export function TopicIndex({ tiers, topics }: { tiers: Tier[]; topics: TopicRow[] }) {
+// mode decides where a topic links: knowledge article vs practice runner.
+export function TopicIndex({
+  tiers,
+  topics,
+  mode = "knowledge",
+}: {
+  tiers: Tier[];
+  topics: TopicRow[];
+  mode?: "knowledge" | "practice";
+}) {
   const [q, setQ] = useState("");
+  const hrefFor = (slug: string) =>
+    mode === "practice" ? `/topic/${slug}/practice` : `/topic/${slug}/study`;
 
   const groups = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -73,7 +84,7 @@ export function TopicIndex({ tiers, topics }: { tiers: Tier[]; topics: TopicRow[
               {items.map((t) => (
                 <li key={t.slug}>
                   <Link
-                    href={`/topic/${t.slug}`}
+                    href={hrefFor(t.slug)}
                     className="flex items-center gap-3 px-3 py-2 hover:bg-surface-2 transition-colors"
                   >
                     <span className="flex-1 truncate">{t.name}</span>

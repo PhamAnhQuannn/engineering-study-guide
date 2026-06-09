@@ -9,6 +9,9 @@ export function TopicSidebar() {
   const pathname = usePathname();
   const m = pathname.match(/\/topic\/([^/]+)/);
   const current = m?.[1];
+  // Mode-aware: stay in the current mode when navigating topics.
+  const mode = pathname.endsWith("/practice") ? "practice" : "study";
+  const hrefFor = (slug: string) => `/topic/${slug}/${mode}`;
 
   return (
     <nav aria-label="Topics" className="text-sm">
@@ -24,7 +27,7 @@ export function TopicSidebar() {
                 return (
                   <li key={t.slug}>
                     <Link
-                      href={`/topic/${t.slug}`}
+                      href={hrefFor(t.slug)}
                       aria-current={active ? "page" : undefined}
                       className={`block rounded px-2 py-1 transition-colors ${
                         active
