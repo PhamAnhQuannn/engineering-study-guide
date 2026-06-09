@@ -37,6 +37,9 @@ export default function RootLayout({
             <Link href="/" className="opacity-70 hover:opacity-100">
               Topics
             </Link>
+            <Link href="/mock" className="opacity-70 hover:opacity-100">
+              Mock interview
+            </Link>
             <Link href="/progress" className="opacity-70 hover:opacity-100">
               Progress
             </Link>
