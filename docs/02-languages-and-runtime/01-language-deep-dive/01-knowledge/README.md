@@ -4,7 +4,123 @@
 
 > Topic: Idioms, type system, runtime model, gotchas.
 
-A senior engineer is expected to know one language *to the metal* and reason about others by analogy. This note is organized around the cross-cutting mental models that show up at interview — type systems, runtime/memory models, evaluation semantics, and the concrete gotchas of the three most common backend languages (Python, Java, Go), with JavaScript/TypeScript called out where it differs. The goal is not trivia; it is being able to predict program behavior from first principles.
+> **🛒 Where we are in building ShopFast** — Last topic we tackled [Concurrency Basics](../../../01-fundamentals/05-concurrency-basics/01-knowledge/README.md) — threads, locks, and async patterns. This topic goes one level deeper: the *language* itself. Understanding Python's GC (Garbage Collection), the GIL (Global Interpreter Lock), and the type system tells you *why* a bug happens at checkout or *why* the catalog endpoint saturates a single core. **Next:** [Paradigms](../../02-paradigms/01-knowledge/README.md) — once you know the runtime, you choose how to structure code on top of it.
+
+---
+
+## Teaching arc: the language underneath ShopFast
+
+### What it is
+
+A **programming language's runtime model** is the set of rules that turn source code into running behavior — how values are typed, how memory is managed, how threads are scheduled, and how function calls move data. Think of it like the rulebook for a board game: you can play without reading it, but you'll make illegal moves and lose in surprising ways. Knowing the rulebook lets you *predict* behavior instead of guess.
+
+ShopFast's backend is written in a mainstream language (the curriculum uses Python, Java, Go, and JS/TypeScript examples throughout). Every concrete performance, correctness, or concurrency decision you'll make traces back to these rules.
+
+### What it looks like
+
+The same logical operation — "add two things" — behaves completely differently depending on the language's type system and runtime:
+
+```python
+# Python (dynamic, strong typing)
+price_cents = 1999
+label = "Price: "
+# label + price_cents → TypeError: can only concatenate str (not "int") to str
+# Python is STRONG: it won't silently coerce int→str for you
+result = label + str(price_cents)   # you must be explicit
+
+# A subtler trap: mutable default argument — evaluated ONCE at definition time
+def add_to_cart(item, cart=[]):     # ← BUG: 'cart' is shared across ALL calls
+    cart.append(item)
+    return cart
+```
+
+```java
+// Java (static, strong, nominal typing + JIT compilation)
+int priceCents = 1999;
+// Integer cache gotcha: autoboxing to Integer
+Integer a = 127;  Integer b = 127;  System.out.println(a == b);  // true  (cached)
+Integer c = 128;  Integer d = 128;  System.out.println(c == d);  // false (new objects!)
+// ← always use .equals() for object comparison, never ==
+```
+
+```go
+// Go (static, structural interfaces, AOT compiled)
+var price int = 1999
+// typed-nil interface gotcha — the #1 Go interview trap:
+var err *MyError = nil
+var iface error = err          // iface is NOT nil — it holds a (*MyError, nil) pair
+fmt.Println(iface == nil)      // false — surprises everyone the first time
+```
+
+### Implement it / see it in code
+
+The most interview-critical mental model is **how each language handles concurrency and the cost of that choice**. Here is the same "fetch product from cache or DB" logic in each runtime, showing what the scheduler actually does:
+
+```python
+# Python asyncio (cooperative event loop — single thread, non-blocking I/O)
+import asyncio
+
+async def get_product(product_id: int) -> dict:
+    cached = await redis.get(f"product:{product_id}")   # yields control here; no GIL cost
+    if cached:
+        return json.loads(cached)
+    row = await db.fetchone("SELECT * FROM products WHERE id=$1", product_id)
+    await redis.set(f"product:{product_id}", json.dumps(row), ex=60)
+    return row
+# Works well for I/O-bound catalog reads.
+# A blocking call (e.g., a pure-Python loop) here BLOCKS THE WHOLE EVENT LOOP.
+```
+
+```go
+// Go goroutines (M:N scheduler — cheap, preemptive green threads)
+func getProduct(ctx context.Context, id int) (*Product, error) {
+    cached, err := redisClient.Get(ctx, fmt.Sprintf("product:%d", id)).Result()
+    if err == nil {
+        var p Product
+        json.Unmarshal([]byte(cached), &p)
+        return &p, nil
+    }
+    // Each goroutine costs ~2 KB stack; you can have hundreds of thousands in flight.
+    row := db.QueryRowContext(ctx, "SELECT * FROM products WHERE id=$1", id)
+    // ...scan row into Product...
+    return &p, nil
+}
+```
+
+### Where it lives in real systems
+
+**ShopFast's catalog endpoint** makes this concrete in three ways:
+
+1. **The GIL and catalog read throughput.** If ShopFast's backend is CPython and you try to saturate all CPU cores with OS (Operating System) threads, you can't — the GIL allows only one thread to execute Python bytecode at a time. At ~1,800 peak read QPS (Queries Per Second), the catalog endpoint is I/O-bound (Redis + Postgres reads), so the GIL doesn't hurt — `asyncio` releases it on every network call. But if you added CPU-heavy image-processing to the product endpoint, you would hit a wall. Fix: offload to a separate process or a C extension that releases the GIL.
+
+2. **Type system catching a cents-vs-dollars bug at checkout.** ShopFast stores `price` as an integer in cents (e.g., `1999` = $19.99) to avoid floating-point rounding errors. In a statically typed language (Go, Java, TypeScript), you can encode this as a distinct type (`type Cents int`) so the compiler rejects accidentally passing a dollar-float to a function expecting cents. In Python (dynamic typing), you need a runtime check or a `@dataclass` with a validator. A `POST /v1/orders` that charges `$0.19` instead of `$19.99` is a real business-ending bug — the type system is your first line of defense.
+
+3. **GC (Garbage Collection) pauses and checkout latency.** ShopFast's `POST /v1/orders` has a strict latency budget (it calls the payment provider with a 2s timeout). Java's older GC collectors could cause stop-the-world pauses of tens of milliseconds. With ZGC or Shenandoah, pauses are sub-millisecond. Go's concurrent mark-sweep targets sub-1ms STW (Stop-The-World). Understanding GC lets you explain why p99 (99th-percentile latency) spikes under allocation load even when p50 looks fine.
+
+### Types & differences
+
+| Dimension | Python (CPython) | Java (HotSpot JVM) | Go | JS/TypeScript (V8) |
+|---|---|---|---|---|
+| **Typing** | Dynamic, strong | Static, strong, nominal | Static, structural interfaces | Dynamic (JS) / Static (TS) |
+| **Execution** | Bytecode → interpreter (+ experimental JIT in 3.13+) | Bytecode → JIT (Just-In-Time) tiered | AOT (Ahead-Of-Time) native binary | Bytecode → JIT (TurboFan) |
+| **Memory mgmt** | Reference counting + cycle GC | Tracing GC (G1, ZGC, Shenandoah) | Concurrent mark-sweep, sub-ms STW | Generational GC |
+| **Concurrency** | Threads limited by GIL + `asyncio` event loop | OS threads + virtual threads (Java 21+) | Goroutines (M:N scheduler) | Single-thread event loop |
+| **Errors** | Exceptions | Checked + unchecked exceptions | Explicit `(value, error)` return | Exceptions |
+| **Param passing** | Pass-by-sharing (copy of reference) | Pass-by-sharing | Pass-by-value (pointers explicit) | Pass-by-sharing |
+| **Reach for it when** | Scripting, ML, rapid prototyping | Large JVM ecosystem, strong tooling | Systems, high concurrency, CLI tools | Browser/Node full-stack |
+
+### Gotchas
+
+| Language | Gotcha | Why it matters for ShopFast |
+|---|---|---|
+| Python | Mutable default argument (`def f(x=[])`) evaluated once at def-time | A route handler that accidentally shares state between requests corrupts cart data |
+| Python | Late-binding closures — loop variable captured by reference, not value | Async I/O callbacks in a loop all see the last value of the loop variable |
+| Java | `Integer` cache: `==` works for -128..127, breaks above it | Comparing order IDs or product IDs with `==` silently fails on large values |
+| Java | Type erasure: `List<String>` and `List<Integer>` are the same class at runtime | Can't dispatch on generic type; can't do `new T[]`; bridge methods add noise |
+| Go | Typed-nil interface: `(*T)(nil)` stored in an `error` interface is `!= nil` | `if err != nil` passes even though the underlying pointer is nil — silent success that's actually an error |
+| Go | Slice aliasing: `append` may or may not copy the backing array | Concurrent reads/writes to a slice derived from a shared backing array → data race |
+| JS/TS | TS types erased at runtime | Zod / io-ts needed for boundary validation; `as unknown as T` is lying to the compiler |
+| All | GC pause spikes under high allocation rate | Checkout p99 latency jumps without tuning; profile allocation rate before blaming the network |
 
 ---
 
@@ -40,22 +156,22 @@ Hindley–Milner-style inference (full) vs local inference. Go/Java infer locall
 ## 2. Runtime / execution model
 
 ### Compilation pipelines
-- **Python (CPython)**: source → bytecode (`.pyc`) → interpreted by a stack-based VM. No JIT in stock CPython (PyPy has one; CPython 3.13+ ships an experimental JIT).
-- **Java**: source → bytecode (`.class`) → JVM. Starts interpreted, then the **JIT** (C1/C2 in HotSpot) compiles hot methods to native code, guided by runtime profiling. Tiered compilation, on-stack replacement, deoptimization.
-- **Go**: AOT compiled to a single static native binary. Fast compiles, no VM, built-in runtime (scheduler, GC) linked in.
+- **Python (CPython)**: source → bytecode (`.pyc`) → interpreted by a stack-based VM. No JIT (Just-In-Time compilation) in stock CPython (PyPy has one; CPython 3.13+ ships an experimental JIT).
+- **Java**: source → bytecode (`.class`) → JVM (Java Virtual Machine). Starts interpreted, then the **JIT** (C1/C2 in HotSpot) compiles hot methods to native code, guided by runtime profiling. Tiered compilation, on-stack replacement, deoptimization.
+- **Go**: AOT (Ahead-Of-Time) compiled to a single static native binary. Fast compiles, no VM, built-in runtime (scheduler, GC) linked in.
 - **JS (V8)**: source → bytecode (Ignition) → optimizing JIT (TurboFan) with speculative optimization + deopt on type feedback violation ("hidden classes"/"shapes").
 
 ### The GIL (Python)
-CPython's **Global Interpreter Lock** allows only one thread to execute bytecode at a time. CPU-bound multithreading does **not** scale on cores — use `multiprocessing` or native extensions that release the GIL. I/O-bound threads *do* benefit because the GIL is released during blocking I/O. Python 3.13 ships an experimental free-threaded (no-GIL) build.
+CPython's **GIL (Global Interpreter Lock)** allows only one thread to execute bytecode at a time. CPU-bound multithreading does **not** scale on cores — use `multiprocessing` or native extensions that release the GIL. I/O-bound threads *do* benefit because the GIL is released during blocking I/O. Python 3.13 ships an experimental free-threaded (no-GIL) build.
 
 ### Concurrency models
-- **OS threads** (Java pre-21, Python): 1:1 with kernel threads, ~1MB stacks, expensive context switches.
+- **OS (Operating System) threads** (Java pre-21, Python): 1:1 with kernel threads, ~1MB stacks, expensive context switches.
 - **Goroutines** (Go): M:N green threads multiplexed onto OS threads by the runtime scheduler; ~2KB initial stack, grows. Cheap to spawn millions.
-- **Virtual threads** (Java 21, Project Loom): JVM-managed lightweight threads, similar idea — unblocks the "thread-per-request" model without the cost.
+- **Virtual threads** (Java 21, Project Loom): JVM (Java Virtual Machine)-managed lightweight threads, similar idea — unblocks the "thread-per-request" model without the cost.
 - **Event loop** (Node, asyncio): single-threaded cooperative scheduling; `async/await` over a reactor. Great for I/O, blocks on CPU work.
 
 ### Memory management
-- **Tracing GC**: Java (G1, ZGC, Shenandoah — region/concurrent collectors), Go (concurrent tri-color mark-sweep, sub-ms STW), JS (generational + incremental).
+- **Tracing GC (Garbage Collection)**: Java (G1, ZGC, Shenandoah — region/concurrent collectors), Go (concurrent tri-color mark-sweep, sub-ms STW (Stop-The-World)), JS (generational + incremental).
 - **Reference counting**: CPython (immediate reclamation) + a cycle collector for reference cycles. Deterministic for acyclic data.
 - **Manual / ownership**: C/C++ (`malloc`/`free`), Rust (ownership + borrow checker, no GC, no runtime cost).
 - **Stack vs heap**: value types and locals on the stack; objects on the heap. Go's **escape analysis** decides at compile time whether an allocation can stay on the stack.
@@ -92,7 +208,7 @@ This is the most common interview trap. Almost no mainstream language is truly p
 ### Python
 - Integer division `//` vs `/`; `/` always returns float.
 - `is` vs `==`; mutable defaults; late-binding closures.
-- `__slots__` to cut per-instance memory; descriptors and the MRO (C3 linearization) for multiple inheritance.
+- `__slots__` to cut per-instance memory; descriptors and the MRO (Method Resolution Order, C3 linearization) for multiple inheritance.
 - `asyncio` is cooperative — a blocking call stalls the whole event loop.
 
 ### Java
@@ -105,7 +221,7 @@ This is the most common interview trap. Almost no mainstream language is truly p
 - Zero values everywhere (`nil` maps panic on write but read fine; `nil` slices are usable).
 - The **typed-nil interface** gotcha: an interface holding a `(*T)(nil)` is `!= nil`. Classic source of bugs returning errors.
 - Slices share backing arrays — `append` may or may not alias the original; subtle data races/aliasing.
-- `defer` runs LIFO at function return; captures arguments at `defer` time, not execution time.
+- `defer` runs LIFO (Last-In-First-Out) at function return; captures arguments at `defer` time, not execution time.
 - No exceptions: explicit `if err != nil`. `panic`/`recover` reserved for truly exceptional cases.
 
 ### JavaScript / TypeScript

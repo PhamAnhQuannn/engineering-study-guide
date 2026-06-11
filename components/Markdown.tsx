@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Callout } from "@/components/Callout";
 
 // Shared markdown renderer for prompts, model answers, and study notes.
 
@@ -30,9 +31,31 @@ export function Markdown({ children }: { children: string }) {
         components={{
           h2: ({ children }) => <h2 id={slugify(toText(children))}>{children}</h2>,
           h3: ({ children }) => <h3 id={slugify(toText(children))}>{children}</h3>,
+          blockquote: ({ children }) => {
+            const text = toText(children);
+            const match = text.match(/^\s*\[!(NOTE|TIP|WARNING|IMPORTANT)]\s*/i);
+            if (match) {
+              const type = match[1].toLowerCase() as "note" | "tip" | "warning" | "important";
+              const body = text.replace(/^\s*\[!(NOTE|TIP|WARNING|IMPORTANT)]\s*/i, "");
+              return <Callout type={type}>{body}</Callout>;
+            }
+            return <blockquote>{children}</blockquote>;
+          },
           a: ({ href, children }) => {
-            // Doc-internal links (relative paths / *.md, authored for GitHub browsing)
-            // are meaningless in-app — render as plain text. Keep real + #anchor links.
+            // Cross-topic knowledge links are authored as relative GitHub paths like
+            // `../../04-architecture-styles/01-knowledge/README.md`. Map them to the
+            // in-app study route `/topic/<slug>/study` (folder name minus its NN- prefix
+            // equals the topic slug). Preserve any trailing #anchor.
+            const knowledgeLink = href?.match(
+              /([^/]+)\/01-knowledge\/README\.md(#[^)]*)?$/
+            );
+            if (knowledgeLink) {
+              const slug = knowledgeLink[1].replace(/^\d+-/, "");
+              const anchor = knowledgeLink[2] ?? "";
+              return <a href={`/topic/${slug}/study${anchor}`}>{children}</a>;
+            }
+            // Other doc-internal links (overview READMEs, raw *.md) have no in-app
+            // route — render as plain text. Keep real + #anchor links clickable.
             const docLink =
               !href ||
               href.endsWith(".md") ||

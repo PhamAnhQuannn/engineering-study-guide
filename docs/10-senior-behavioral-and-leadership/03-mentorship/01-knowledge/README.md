@@ -4,7 +4,62 @@
 
 > Topic: Unblocking juniors, code review culture, growing others.
 
-A senior engineer's leverage is multiplicative: the code you write scales linearly, but the engineers you grow scale the whole team. Interviews probe whether you can **unblock without taking over**, **review to teach not just to gate**, and **create the conditions for others to grow** — sponsorship, psychological safety, and feedback that lands.
+> **🛒 Where we are in building ShopFast** — In the previous topic we [decomposed the checkout epic into shippable slices](../../02-decomposition/01-knowledge/README.md). Those slices now need to be picked up by a growing team — including junior engineers new to the modular monolith. This topic teaches the judgment behind growing those engineers: how to unblock without taking over, how to review code to teach rather than just to gate, and how to create the conditions for others to operate at full capability. **Next:** once you can grow engineers individually, you need to [communicate across the wider organization](../../04-communication/01-knowledge/README.md) — writing RFCs (Requests For Comments) and aligning stakeholders.
+
+---
+
+## Teaching arc: onboarding a junior engineer onto ShopFast's modular monolith
+
+### What it is & why it matters
+
+**Mentorship** is the deliberate practice of transferring capability so that the people around you can operate independently at a higher level. A senior engineer's leverage is multiplicative: the code you write scales linearly, but the engineers you grow scale the whole team. Interviews probe whether you can **unblock without taking over**, **review to teach not just to gate**, and **create the conditions for others to grow** — sponsorship, psychological safety, and feedback that lands.
+
+Why do seniors get paid extra for this? Because a team of three mid-level engineers who each grew under a strong senior mentor delivers more than a team of one senior who does everything themselves. The compounding effect of raising those around you — moving a junior from "needs daily unblocking" to "ships a slice independently" — is the highest-leverage activity available to a staff-level engineer. A manager who does not mentor is a bottleneck; an engineer who does not mentor is a bus-factor risk.
+
+### A ShopFast case
+
+**Framing.** ShopFast has just hired its first junior engineer, Alex, fresh out of university. Alex's first task is slice 2 of the checkout flow: wire the real product selection from the `catalog` module into the order creation path. The senior engineer (you) must decide: how much do you help?
+
+**Options and criteria.** There is a spectrum from "tell Alex the answer immediately" to "let Alex struggle indefinitely." The criteria are: how urgent is this slice (it blocks slice 3, due in 4 days), how much will Alex learn from each approach, and what dependency does each approach create?
+
+**Decision and execution.** You choose the **show → pair → watch → delegate** ladder. Day 1: you sit with Alex and *show* the architecture — narrating your reasoning as you trace the call from the API handler through the `order` module's dependency on `CatalogApi` (the interface, not catalog's tables). Day 2: you *pair* — Alex drives, you prompt. Day 3: you *watch* — Alex works alone, you observe and ask guiding questions ("what happens if the product is out of stock when the order is placed?"). By day 4, Alex submits a pull request (PR) independently.
+
+**Code review.** Your review separates blocking from non-blocking feedback: two items marked "blocking" (a missing null check on the product lookup and an incorrect HTTP status code — correctness issues); five items marked "nit:" (naming, a redundant variable — style choices Alex can accept or decline). Each blocking comment explains the *why*: "We depend on `CatalogApi` returning null for a missing product — if we don't check here, the order module will throw a null pointer exception in production. Here is the pattern we use elsewhere in the codebase." You praise the correct use of the `Idempotency-Key` dedup logic that Alex carried over from the walking skeleton.
+
+**Psychological safety moment.** Alex asks in a team channel: "Is it OK that I don't fully understand the circuit breaker pattern yet?" Your response (visible to the team): "Completely fine — I didn't understand it until I had to debug one at 2am. Let's pair on it this week." This models that confusion is normal and safe to surface.
+
+**Sponsorship.** Two weeks later, in the sprint review, you specifically credit Alex: "Alex independently shipped the product-selection integration and caught the null-check gap I missed in the skeleton." This is **sponsorship** — spending your credibility to advocate for Alex's growth in a room Alex is not in.
+
+**Outcome.** Slice 2 ships on time. Alex completes slice 3 with minimal pairing. Six months later, Alex owns the entire `order` module.
+
+### How to handle it
+
+1. **Calibrate to urgency.** Production (prod) is down → tell them and fix it; debrief later. Low urgency, high learning value → ask guiding questions, let them find it. Repeated block on the same thing → diagnose the gap directly and transfer the pattern.
+2. **Use the show → pair → watch → delegate ladder.** Each step transfers more ownership. Staying at "show" forever creates dependency, not capability.
+3. **Code review: separate nits from blockers.** Mark style suggestions as "nit:" or "optional:"; reserve "request changes" for correctness, security, and design. Explain the *why* behind every blocking comment — teach the principle, not just the fix. Ask questions ("what happens if this list is empty?") rather than issuing decrees.
+4. **Build psychological safety.** Admit your own mistakes publicly. Respond to questions without judgment. Run blameless retrospectives (retros). Never punish the person who surfaces a problem.
+5. **Sponsor, not just mentor.** Mentorship is private advice. Sponsorship is spending your own credibility to advocate for someone's advancement — naming their contribution in rooms they are not in, assigning stretch work, giving them credit explicitly.
+6. **Give stretch assignments with a safety net.** Work slightly beyond current ability + your available support. Too easy → stagnation; too hard with no support → failure and lost confidence.
+
+For **feedback**, use the **SBI (Situation–Behavior–Impact)** model: describe the specific situation, the observable behavior, and its impact — not a character judgment. Give it timely, specific, and actionable. Praise in public; correct sensitive things in private.
+
+### A strong answer sounds like
+
+> "When Alex joined ShopFast, I resisted the urge to hand-hold or take over. I used the show-pair-watch-delegate ladder: day 1 I walked through the architecture narrating my reasoning, day 2 we paired, day 3 Alex drove solo. In code review I was careful to separate the two blocking issues — both correctness problems with clear whys — from the five style nits I marked optional. I wanted Alex to understand *why* the null check matters, not just that it does. I also made a point of explicitly crediting Alex in the sprint review, which matters — advice is cheap, but advocacy in a room you're not in is what actually moves a career. Six months later Alex owned the entire order module. The thing I would do differently: I should have run a 1:1 (one-on-one) check-in at week 2 rather than waiting for a visible problem — the early feedback conversation prevents the late one."
+
+STAR (Situation, Task, Action, Result): Situation is new junior on a tight slice, Task is enabling independent delivery, Action is the ladder + reviewed code + safety + sponsorship, Result is slice delivered and engineer growing to module owner.
+
+### Pitfalls
+
+- **Solving everything for them** — creates dependency and steals the learning opportunity.
+- **Code review as a power trip** — nitpicking, ego, "I would have done it differently" without a real reason.
+- **Mixing nits with blockers** — the author cannot tell what actually must change.
+- **Mentoring but never sponsoring** — advice is cheap; advocacy is what actually advances people.
+- **No psychological safety** — juniors hide confusion; bugs and bad designs surface late.
+- **Vague feedback** — "be better" with no specific behavior or next step.
+- **Public correction** — embarrasses and kills safety; correct sensitive things privately.
+- **One-size-fits-all** — the same approach for a nervous new graduate and a confident mid-level fails both.
+- **Hero culture** — being the only one who can fix X. A good mentor *removes* their own bus-factor risk.
 
 ---
 
@@ -24,7 +79,7 @@ Code review is the highest-frequency mentorship surface most teams have. A senio
 - **Explains the *why*,** not just the *what*. "Use a map here" teaches nothing; "a map gives O(1) lookups and we call this in a loop, so it avoids the O(n²)" teaches.
 - **Asks questions instead of issuing decrees** where reasonable ("what happens if this list is empty?") — invites thinking over compliance.
 - **Praises good work,** not only flags problems. Reinforcement shapes behavior.
-- **Reviews promptly.** A PR sitting for two days blocks a person and signals low priority.
+- **Reviews promptly.** A PR (pull request) sitting for two days blocks a person and signals low priority.
 
 ### Psychological safety
 People learn and surface problems only when it's safe to be wrong. Senior engineers build safety by admitting their own mistakes, responding to "dumb questions" without judgment, running blameless retros, and never punishing the messenger. Without safety, juniors hide confusion and bugs — the opposite of what you want.
@@ -67,7 +122,7 @@ Senior mentorship isn't only about juniors. It includes raising the team's bar: 
 | Psychological safety | Shared belief that it's safe to take risks, ask, and be wrong. |
 | Stretch assignment | Work slightly beyond current ability, with a safety net. |
 | Blocking vs non-blocking feedback | Must-fix (correctness/security/design) vs optional (style/nits). |
-| SBI | Situation–Behavior–Impact feedback model. |
+| SBI (Situation–Behavior–Impact) | Feedback model that names situation, specific behavior, and its impact. |
 | Radical candor | Care personally + challenge directly. |
 | Zone of proximal development | The band of tasks one can do with help but not alone yet. |
 | Bus factor | How many people can leave before knowledge is lost; mentorship lowers risk. |

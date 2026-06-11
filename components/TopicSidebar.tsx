@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { TIERS, TOPICS } from "@/lib/taxonomy";
+import { TIERS, TOPICS, orderIndex } from "@/lib/taxonomy";
 
 // Persistent topic tree (GfG-style) for inner pages. Highlights the current topic.
 export function TopicSidebar() {
@@ -22,7 +22,9 @@ export function TopicSidebar() {
               T{tier.tier} · {tier.name}
             </div>
             <ul>
-              {TOPICS.filter((t) => t.tier === tier.tier).map((t) => {
+              {TOPICS.filter((t) => t.tier === tier.tier)
+                .sort((a, b) => orderIndex(a.slug) - orderIndex(b.slug))
+                .map((t) => {
                 const active = t.slug === current;
                 return (
                   <li key={t.slug}>

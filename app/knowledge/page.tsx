@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { TIERS } from "@/lib/taxonomy";
 import { getProgressSummary } from "@/lib/progress";
 import { scoreColor } from "@/lib/score";
 import { Stat } from "@/components/Stat";
 import { TopicIndex } from "@/components/TopicIndex";
+
+export const metadata: Metadata = {
+  title: "Knowledge — Senior Backend Interview Prep",
+  description: "Learn every senior backend topic from concept to code — fully offline.",
+};
 
 export const dynamic = "force-dynamic";
 
@@ -34,18 +40,25 @@ export default async function KnowledgePage() {
         </div>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
+            href="/learning-paths"
+            className="rounded-md bg-accent text-accent-foreground px-6 py-3 font-medium hover:opacity-90 transition-opacity"
+          >
+            Start here: guided paths →
+          </Link>
+          <Link
             href="/practice"
-            className="rounded-md border border-border px-4 py-2.5 hover:bg-surface-2 transition-colors"
+            className="rounded-md border border-border px-5 py-2.5 hover:bg-surface-2 transition-colors"
           >
             Practice questions →
           </Link>
           <Link
             href="/mock"
-            className="rounded-md border border-border px-4 py-2.5 hover:bg-surface-2 transition-colors"
+            className="rounded-md border border-border px-5 py-2.5 hover:bg-surface-2 transition-colors"
           >
             Mock interview →
           </Link>
         </div>
+        <p className="mt-2 text-xs text-muted">No account needed · works offline</p>
       </section>
 
       <section>

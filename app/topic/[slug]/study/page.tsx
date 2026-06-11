@@ -1,42 +1,92 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { Markdown } from "@/components/Markdown";
 import { TopicSidebar } from "@/components/TopicSidebar";
-import { TOPICS } from "@/lib/taxonomy";
+import { Toc, type TocItem } from "@/components/Toc";
+import { TOPICS, TIERS, orderIndex } from "@/lib/taxonomy";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(
+  props: PageProps<"/topic/[slug]/study">,
+): Promise<Metadata> {
+  const { slug } = await props.params;
+  const topic = await prisma.topic.findUnique({ where: { slug } });
+  if (!topic) return {};
+  const tier = TIERS.find((t) => t.tier === topic.tier);
+  return {
+    title: `${topic.name} — Senior Backend Interview Prep`,
+    description: topic.description,
+    openGraph: {
+      title: `${topic.name} — Study Guide`,
+      description: topic.description,
+      type: "article",
+      section: tier?.name,
+    },
+  };
+}
 
 function slugify(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
-// Build a table of contents from the H2 headings in the markdown.
-function buildToc(markdown: string): { text: string; slug: string }[] {
+// Build a table of contents from the H2/H3 headings in the markdown.
+function buildToc(markdown: string): TocItem[] {
   return markdown
     .split(/\r?\n/)
-    .filter((l) => /^##\s+/.test(l))
+    .filter((l) => /^###?\s+/.test(l))
     .map((l) => {
-      const text = l.replace(/^##\s+/, "").trim();
-      return { text, slug: slugify(text) };
+      const level: 2 | 3 = l.startsWith("### ") ? 3 : 2;
+      const text = l.replace(/^#{2,3}\s+/, "").trim();
+      return { text, slug: slugify(text), level };
     });
 }
 
 export default async function StudyPage(props: PageProps<"/topic/[slug]/study">) {
   const { slug } = await props.params;
-  const [topic, note] = await Promise.all([
+  const [topic, note, progress] = await Promise.all([
     prisma.topic.findUnique({ where: { slug } }),
     prisma.studyNote.findUnique({ where: { topicSlug: slug } }),
+    prisma.topicProgress.findUnique({ where: { topicSlug: slug } }),
   ]);
   if (!topic) notFound();
 
+  const due = progress?.nextDue ? new Date(progress.nextDue).getTime() <= Date.now() : false;
   const toc = note ? buildToc(note.markdown) : [];
-  const idx = TOPICS.findIndex((t) => t.slug === slug);
-  const prev = idx > 0 ? TOPICS[idx - 1] : null;
-  const next = idx >= 0 && idx < TOPICS.length - 1 ? TOPICS[idx + 1] : null;
+  // prev/next follow the canonical learning order, not the raw TOPICS array.
+  const ordered = [...TOPICS].sort((a, b) => orderIndex(a.slug) - orderIndex(b.slug));
+  const idx = ordered.findIndex((t) => t.slug === slug);
+  const prev = idx > 0 ? ordered[idx - 1] : null;
+  const next = idx >= 0 && idx < ordered.length - 1 ? ordered[idx + 1] : null;
+
+  const tier = TIERS.find((t) => t.tier === topic.tier);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    name: topic.name,
+    description: topic.description,
+    articleSection: tier?.name,
+    isPartOf: {
+      "@type": "WebSite",
+      name: "Senior Backend Interview Prep",
+    },
+  };
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Knowledge", item: "/knowledge" },
+      { "@type": "ListItem", position: 2, name: topic.name },
+    ],
+  };
 
   return (
-    <div className="lg:grid lg:grid-cols-[180px_minmax(0,1fr)_160px] lg:gap-6">
+    <div className="lg:grid lg:grid-cols-[220px_minmax(0,1fr)_200px] lg:gap-6">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+
       <aside className="hidden lg:block">
         <TopicSidebar />
       </aside>
@@ -60,7 +110,23 @@ export default async function StudyPage(props: PageProps<"/topic/[slug]/study">)
           </Link>
         </div>
 
-        <hr className="my-6 border-border" />
+        {due && (
+          <Link
+            href={`/topic/${slug}/practice`}
+            className="mt-4 flex items-center gap-2 rounded-md border border-accent/40 bg-accent/10 px-4 py-2.5 text-sm hover:bg-accent/20 transition-colors"
+          >
+            <span>⏰</span>
+            <span>
+              <strong>Due for review.</strong> You last studied this{" "}
+              {progress?.lastSeen ? new Date(progress.lastSeen).toLocaleDateString() : "a while ago"}. Drill it now →
+            </span>
+          </Link>
+        )}
+
+        {/* Mobile in-page nav (desktop version sits in the right column) */}
+        <Toc items={toc} variant="mobile" />
+
+        <hr className="my-8 border-border" />
 
         {note ? (
           <Markdown>{note.markdown}</Markdown>
@@ -68,44 +134,36 @@ export default async function StudyPage(props: PageProps<"/topic/[slug]/study">)
           <p className="text-muted">No study notes for this topic yet.</p>
         )}
 
-        <hr className="my-6 border-border" />
-        <div className="flex justify-between gap-4 text-sm">
+        <hr className="my-8 border-border" />
+        <nav className="grid grid-cols-2 gap-4" aria-label="Previous and next topics">
           {prev ? (
-            <Link href={`/topic/${prev.slug}/study`} className="text-muted hover:text-foreground">
-              ← {prev.name}
+            <Link
+              href={`/topic/${prev.slug}/study`}
+              className="group flex flex-col gap-1 rounded-lg border border-border p-4 hover:bg-surface transition-colors"
+            >
+              <span className="text-xs text-muted">← Previous</span>
+              <span className="font-medium group-hover:text-accent transition-colors">{prev.name}</span>
             </Link>
           ) : (
             <span />
           )}
           {next ? (
-            <Link href={`/topic/${next.slug}/study`} className="text-muted hover:text-foreground text-right">
-              {next.name} →
+            <Link
+              href={`/topic/${next.slug}/study`}
+              className="group flex flex-col gap-1 rounded-lg border border-border p-4 text-right hover:bg-surface transition-colors"
+            >
+              <span className="text-xs text-muted">Next →</span>
+              <span className="font-medium group-hover:text-accent transition-colors">{next.name}</span>
             </Link>
           ) : (
             <span />
           )}
-        </div>
+        </nav>
       </article>
 
       {toc.length > 0 && (
         <aside className="hidden lg:block">
-          <div className="sticky top-16 text-sm">
-            <div className="font-mono text-[0.65rem] uppercase tracking-wider text-muted mb-2">
-              On this page
-            </div>
-            <ul className="flex flex-col gap-1 border-l border-border">
-              {toc.map((h) => (
-                <li key={h.slug}>
-                  <a
-                    href={`#${h.slug}`}
-                    className="block -ml-px border-l border-transparent pl-3 text-muted hover:text-accent hover:border-accent transition-colors"
-                  >
-                    {h.text}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <Toc items={toc} variant="desktop" />
         </aside>
       )}
     </div>

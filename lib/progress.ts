@@ -1,4 +1,5 @@
 import { prisma } from "./db";
+import { orderIndex } from "./taxonomy";
 
 export interface TopicProgressView {
   slug: string;
@@ -25,11 +26,16 @@ export interface ProgressSummary {
 }
 
 export async function getProgressSummary(): Promise<ProgressSummary> {
-  const [topics, progress, attemptAgg] = await Promise.all([
-    prisma.topic.findMany({ orderBy: [{ tier: "asc" }, { name: "asc" }] }),
+  const [topicsRaw, progress, attemptAgg] = await Promise.all([
+    prisma.topic.findMany(),
     prisma.topicProgress.findMany(),
     prisma.attempt.aggregate({ _count: true, _avg: { score: true } }),
   ]);
+
+  // Order by tier, then by canonical learning order — matches sidebar / prev-next / learning-paths.
+  const topics = [...topicsRaw].sort(
+    (a, b) => a.tier - b.tier || orderIndex(a.slug) - orderIndex(b.slug)
+  );
 
   const bySlug = new Map(progress.map((p) => [p.topicSlug, p]));
   const now = Date.now();

@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import { TIERS } from "@/lib/taxonomy";
 import { getProgressSummary } from "@/lib/progress";
 import { TopicIndex } from "@/components/TopicIndex";
+
+export const metadata: Metadata = {
+  title: "Practice — Senior Backend Interview Prep",
+  description: "Drill any topic with spaced-repetition practice questions across 10 question types.",
+};
 
 export const dynamic = "force-dynamic";
 

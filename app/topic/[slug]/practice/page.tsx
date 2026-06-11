@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
@@ -6,6 +7,18 @@ import { TopicSidebar } from "@/components/TopicSidebar";
 import { PracticeRunner } from "@/components/PracticeRunner";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(
+  props: PageProps<"/topic/[slug]/practice">,
+): Promise<Metadata> {
+  const { slug } = await props.params;
+  const topic = await prisma.topic.findUnique({ where: { slug } });
+  if (!topic) return {};
+  return {
+    title: `Practice ${topic.name} — Senior Backend Interview Prep`,
+    description: `Drill ${topic.name} with spaced-repetition practice questions.`,
+  };
+}
 
 export default async function TopicPracticePage(props: PageProps<"/topic/[slug]/practice">) {
   const { slug } = await props.params;
@@ -23,7 +36,7 @@ export default async function TopicPracticePage(props: PageProps<"/topic/[slug]/
     .sort((a, b) => b.count - a.count);
 
   return (
-    <div className="lg:grid lg:grid-cols-[180px_minmax(0,1fr)] lg:gap-6">
+    <div className="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-6">
       <aside className="hidden lg:block">
         <TopicSidebar />
       </aside>

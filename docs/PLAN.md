@@ -42,6 +42,38 @@ Finish coverage by running **every file** through two standing anchor questions 
 ### The loop (repeat for every file)
 Tier → topic → file: read → apply both lenses → enrich knowledge / add-sharpen questions / add checklist to every Q → `db:import` → coverage report → mark done in `docs/COVERAGE.md` ledger → next. Repeat until all files pass both lenses + have checklists. Both anchor questions baked into the `author-topic` skill (§7).
 
+## A2. Knowledge Teaching-Arc Format (the "way of plan") — ACTIVE
+
+The two lenses (§A) are the *quality bar*; this section is the *shape* every `01-knowledge/README.md` is authored to. Introduced with Tier 3 (System Design) and rolling outward. Each file **keeps its existing reference sections** (key terms, "what interviewers probe", quick-reference) and **adds a teaching arc on top**, plus a 🛒 ShopFast banner.
+
+### The running system — ShopFast (single source of truth)
+One example system, **ShopFast** (an online store), is threaded across the whole curriculum so concepts connect into one continuous build. **Canonical facts live in `docs/SHOPFAST.md` — quote them, never re-invent.** When a topic introduces a new ShopFast fact, add it to `SHOPFAST.md` in the same change. Three spines (declared in `lib/taxonomy.ts` `SPINES`, surfaced at `/learning-paths`):
+
+| Spine | Tiers | Thread |
+|---|---|---|
+| Build ShopFast | T1–T5 | building blocks → language → system design → data → correctness & resilience |
+| Operate ShopFast | T6–T9 | code quality → infra → networking → security |
+| Decide & Ship ShopFast | T10–T12 | decisions → incidents → product/business |
+
+### Three arc variants (pick per tier)
+One arc does not fit all domains (QA 2026-06-09). Use the arc that fits:
+
+- **A. Design arc** — *T3 ✅, T4 Databases, T5 Distributed, T8 Networking, T9 Security.*
+  `what is it (+analogy)` → `what it looks like (HTTP/ASCII/schema)` → `code that builds it` → `code that calls it` → `types & differences table (+ "reach for it when")` → `Build it for real — ShopFast (decision + reason + REJECTED + "if you DON'T" failure)` → `Scaling story (Now/cheap+placeholder → Growth signal/metric → At scale, cross-linked)`.
+- **B. Foundation arc** — *T1 Fundamentals, T2 Languages, pure theory (complexity, CAP).*
+  `what is it (+analogy)` → `what it looks like (structure diagram)` → `implement it from scratch (code)` → `where it lives in real systems (ties to ShopFast)` → `types & differences (+ reach-for)` → `gotchas`. **No scaling story** (static building blocks).
+- **C. Case-study arc** — *T7 Infra/DevOps, T10 Leadership, T11 Real Situations, T12 Product.*
+  `what is it / why it matters` → `ShopFast case or incident (framing → options/criteria → decision/outcome)` → `how we handled it` → `lessons / pitfalls`. Infra (T7) = *playbook* variant: `what → setup → ShopFast config → common failures → how to debug`.
+
+### Acronym rule
+**Expand every acronym on its first use per file:** `ACRONYM (Expanded Form)` — e.g. `LIFO (Last In First Out)`, `TTL (Time To Live)`, `CDN (Content Delivery Network)`, `QPS (Queries Per Second)`, `p99 (99th-percentile latency)`. After first use, the bare acronym is fine. Keeps notes learnable cold (Lens 2). Applies to all arcs; existing non-T3 tiers get fixed as they're rolled in P4.
+
+### Cross-link convention
+Link sibling/related topics with relative paths `../../<NN-folder>/01-knowledge/README.md`. `components/Markdown.tsx` maps these in-app to `/topic/<slug>/study` (folder name minus the `NN-` prefix = slug). Always slug-based so links survive renumbering.
+
+### Rollout order (ROI, after T3 locked)
+T4 Databases → T8 Networking → T5 Distributed → T9 Security → T6 Code Quality (arc A) → T1/T2 (arc B) → T7/T10/T11/T12 (arc C). Pause to lock the format after the first file of each *new arc* (as T3 was reviewed before scaling).
+
 ## B. Using the Content on the Website — Two Lenses → Two Surfaces
 Same content (knowledge + questions + checklists) powers two surfaces:
 - **Learner surface (Lens 2) — "Prep & Master":** study → practice by type → checklist self-grade → SR review → progress/weak-areas. Mostly built. Adds: checklist self-grade, recommended **prep path**, weak-area surfacing.

@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getProgressSummary } from "@/lib/progress";
 import { scoreColor } from "@/lib/score";
 import { Stat } from "@/components/Stat";
+
+export const metadata: Metadata = {
+  title: "Progress — Senior Backend Interview Prep",
+  description: "Track your spaced-repetition progress, weak areas, and review schedule.",
+};
 
 export const dynamic = "force-dynamic";
 

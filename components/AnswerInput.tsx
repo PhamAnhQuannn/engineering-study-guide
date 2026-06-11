@@ -53,7 +53,7 @@ export function AnswerInput({
         <MonacoEditor
           height="320px"
           defaultLanguage="python"
-          theme="vs-dark"
+          theme="vs"
           value={value}
           onChange={(v) => onChange(v ?? "")}
           options={{

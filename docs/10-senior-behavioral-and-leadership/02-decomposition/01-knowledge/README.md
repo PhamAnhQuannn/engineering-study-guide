@@ -4,7 +4,57 @@
 
 > Topic: Break epics into shippable slices, scoping, estimation.
 
-The senior skill here is turning a vague, scary epic into a **sequence of small, independently valuable, independently shippable slices** — each de-risking the next, each providing feedback, none requiring a "big bang" cutover. Interviewers test whether you can find the *thinnest slice that delivers learning or value* and sequence work to attack risk early.
+> **🛒 Where we are in building ShopFast** — In the previous topic we learned [how to make the architecture decision](../../01-decision-making/01-knowledge/README.md) — picking a modular monolith for ShopFast. That decision produced a large, intimidating epic: "build the checkout flow." This topic teaches how to slice that epic into small, independently shippable pieces so the team can learn and deliver without a big-bang launch. **Next:** once the work is sliced, you need to [grow the junior engineers](../../03-mentorship/01-knowledge/README.md) picking up those slices.
+
+---
+
+## Teaching arc: slicing ShopFast's checkout into shippable pieces
+
+### What it is & why it matters
+
+**Decomposition** is the art of turning a vague, scary epic into a **sequence of small, independently valuable, independently shippable slices** — each de-risking the next, each providing feedback, none requiring a "big bang" cutover. The senior skill is not just breaking work into tasks; it is finding the *thinnest slice that delivers learning or value* and sequencing work to attack risk early.
+
+Why do seniors get paid extra for this? Because the most expensive mistakes in software happen late — when a team discovers at week 10 that the payment provider integration is fundamentally broken, or that the cart-to-order handoff needs a distributed transaction they cannot cheaply build. Good decomposition surfaces those risks at week 1, when changing course costs a sprint instead of a quarter.
+
+### A ShopFast case
+
+**Framing.** The team has decided to build the checkout flow end-to-end: browse catalog → add to cart → checkout → pay → receive confirmation email. The product manager wants it live in 6 weeks. Left decomposed horizontally, the natural temptation is: build all the DB tables first, then all the APIs, then the UI, then wire payments, then emails. Nothing ships until week 6.
+
+**Options and criteria.** The team considers two approaches: (A) **horizontal slicing** — layer by layer, (B) **vertical slicing** — thin end-to-end paths for one scenario at a time. Criteria: when can we get real user feedback? When do we discover the payment integration risk? Can we ship behind a feature flag and iterate?
+
+**Decision and sequencing.** The lead engineer draws a **walking skeleton**: the thinnest end-to-end path that proves the pipes connect — one product, one hard-coded price, one successful Stripe call, one order row saved, no email, no error handling. Slice 1 is this skeleton, shipped behind a feature flag. It surfaces the scariest unknown early: does the Stripe API integration work in production? It does. Slice 2 adds real product selection from the catalog. Slice 3 adds inventory checks and the idempotency key on `POST /v1/orders` (so retried mobile checkouts do not double-charge). Slice 4 adds confirmation emails via the queue. Each slice passes the **INVEST** criteria — Independent, Negotiable, Valuable, Estimable, Small, Testable.
+
+**Scope document.** The team writes explicit **in / out / later**: *in scope for launch* — happy-path checkout, basic card payment, order confirmation row; *out of scope* — refunds, address validation, gift cards; *later* — loyalty points, saved payment methods. Naming "later" explicitly prevents silent scope creep.
+
+**Outcome.** The walking skeleton is deployed at end of week 1. By week 3 the team has real checkout working in staging behind a flag. The email service turns out to be the only major slip (the worker queue config takes longer than estimated); because emails were slice 4 rather than a day-1 dependency, the launch proceeds without them and they ship in the following sprint.
+
+### How to handle it
+
+1. **Classify the slicing axis.** Vertical slice = thin end-to-end path for one scenario, all layers. Horizontal slice = one full layer for all scenarios. Default to vertical.
+2. **Build the walking skeleton first.** The smallest end-to-end implementation that exercises the full architecture — deploy, auth, DB, API, UI, external call. Proves the pipes connect.
+3. **Sequence risk-first.** Order slices by "what kills the project if it is wrong." Attack the highest-uncertainty unknowns first.
+4. **Apply INVEST to each slice.** If a slice cannot be estimated, it is not understood — decompose further or run a **spike** (a timeboxed throwaway investigation that produces knowledge, not product code).
+5. **Write scope as in / out / later.** Name what is deferred so it does not silently creep back in.
+6. **Ship behind feature flags.** Deploy dark; iterate in production without exposing users to partial states.
+
+For **estimation**, use relative sizing (story points or t-shirt sizes) — humans estimate *relative* complexity better than absolute hours. Communicate as ranges, not points. Use **reference-class forecasting** (comparing to similar past work) rather than decomposing from zero, which systematically underestimates due to the planning fallacy.
+
+### A strong answer sounds like
+
+> "When we picked up the checkout epic at ShopFast, the first thing I did was draw the walking skeleton — the thinnest path that would prove the payment integration worked end-to-end: one product, hard-coded price, one Stripe call, one order row. That is slice 1, behind a flag. I sequenced the scary unknown — the Stripe integration — to day 1 rather than week 4. Each subsequent slice passed INVEST: independent, small enough to ship in a few days, demonstrable on its own. I also wrote an explicit in/out/later document — refunds and gift cards went to 'later,' which kept the scope conversation honest. The email slice slipped, but because it was last in the sequence rather than a prerequisite, we launched on time and shipped emails the next sprint. The lesson was: always put the external dependency you cannot control — the payment provider — into slice 1."
+
+STAR (Situation, Task, Action, Result) sketch: Situation is the checkout epic with a 6-week deadline, Task is decomposing it safely, Action is the walking skeleton + risk-first sequencing + INVEST + in/out/later, Result is an on-time launch with only a non-blocking slip.
+
+### Pitfalls
+
+- **Horizontal slicing by default** — building all of one layer before any value exists.
+- **Boil-the-ocean first slice** — the first slice tries to handle every edge case instead of one happy path.
+- **No walking skeleton** — integrating all components at the end ("integration hell").
+- **Estimating big unknowns precisely** — false confidence; spike first.
+- **Confusing "smaller tasks" with "decomposed slices"** — ten tasks that only deliver value together is still one big-bang.
+- **Ignoring the planning fallacy** — estimating from an idealized clean run, no buffer for the unknown unknowns.
+- **Scope creep via silence** — not writing down out-of-scope/later, so it creeps back in.
+- **Sequencing easy-first instead of risky-first** — feels productive but leaves the project-killing unknown for the end.
 
 ---
 
@@ -63,7 +113,7 @@ Explicitly write what's **in scope**, **out of scope**, and **deferred (later)**
 | Cone of uncertainty | Estimate precision improves as a project progresses. |
 | Planning fallacy | Systematic tendency to underestimate task time. |
 | Reference-class forecasting | Estimating by analogy to similar completed work. |
-| MVP / thin slice | Minimum increment that delivers value or validated learning. |
+| MVP (Minimum Viable Product) / thin slice | Minimum increment that delivers value or validated learning. |
 | Definition of Done | Agreed checklist that makes "done" unambiguous. |
 
 ---
