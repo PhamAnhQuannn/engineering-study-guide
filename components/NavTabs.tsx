@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const TABS = [
   { href: "/learning-paths", label: "Paths" },
   { href: "/knowledge", label: "Knowledge" },
+  { href: "/systems", label: "Systems" },
   { href: "/practice", label: "Practice" },
   { href: "/mock", label: "Mock" },
   { href: "/progress", label: "Progress" },
@@ -16,6 +17,7 @@ function isActive(pathname: string, href: string): boolean {
     return pathname.startsWith("/knowledge") || (pathname.startsWith("/topic") && !pathname.endsWith("/practice"));
   if (href === "/practice")
     return pathname.startsWith("/practice") || pathname.endsWith("/practice");
+  if (href === "/systems") return pathname.startsWith("/systems");
   return pathname.startsWith(href);
 }
 
