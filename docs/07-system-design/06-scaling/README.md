@@ -2,7 +2,7 @@
 
 Horizontal/vertical, load balancing, stateless design.
 
-**Tier 3 — System Design** · Difficulty: advanced
+**Tier 7 — System Design** · Difficulty: advanced
 
 ## Sections
 

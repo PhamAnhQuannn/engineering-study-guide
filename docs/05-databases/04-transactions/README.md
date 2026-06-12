@@ -2,7 +2,7 @@
 
 ACID, isolation levels, locking, MVCC, deadlock.
 
-**Tier 4 — Databases** · Difficulty: advanced
+**Tier 5 — Databases** · Difficulty: advanced
 
 ## Sections
 

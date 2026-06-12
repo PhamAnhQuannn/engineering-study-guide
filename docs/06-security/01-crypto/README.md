@@ -2,7 +2,7 @@
 
 Hashing vs encryption, at-rest/in-transit, signing.
 
-**Tier 9 — Security** · Difficulty: core
+**Tier 6 — Security** · Difficulty: core
 
 ## Sections
 

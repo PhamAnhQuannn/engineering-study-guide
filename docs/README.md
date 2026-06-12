@@ -8,13 +8,13 @@ Each topic has a **knowledge** section (study notes) plus practice sections (cod
 
 1. [Fundamentals](./01-fundamentals/README.md) — CS core: data structures, algorithms, complexity, concurrency, memory.
 2. [Languages & Runtime](./02-languages-and-runtime/README.md) — Language depth, paradigms, error handling.
-3. [System Design](./03-system-design/README.md) — Scaling, caching, APIs, architecture, resilience.
-4. [Databases](./04-databases/README.md) — SQL depth, schema, transactions, operations.
-5. [Distributed Systems](./05-distributed-systems/README.md) — Failure, delivery semantics, consensus, observability.
-6. [Code Quality & Architecture](./06-code-quality-and-architecture/README.md) — Principles, patterns, testing, refactoring.
-7. [Infra / DevOps / Cloud](./07-infra-devops-cloud/README.md) — Git, CI/CD, containers, cloud, Linux, IaC.
-8. [Networking](./08-networking/README.md) — HTTP, TCP/UDP, DNS, TLS, web mechanics.
-9. [Security](./09-security/README.md) — Auth, OWASP, crypto, secrets.
+3. [Code Quality & Architecture](./03-code-quality-and-architecture/README.md) — Principles, patterns, testing, refactoring.
+4. [Networking](./04-networking/README.md) — HTTP, TCP/UDP, DNS, TLS, web mechanics.
+5. [Databases](./05-databases/README.md) — SQL depth, schema, transactions, operations.
+6. [Security](./06-security/README.md) — Auth, OWASP, crypto, secrets.
+7. [System Design](./07-system-design/README.md) — Scaling, caching, APIs, architecture, resilience.
+8. [Infra / DevOps / Cloud](./08-infra-devops-cloud/README.md) — Git, CI/CD, containers, cloud, Linux, IaC.
+9. [Distributed Systems](./09-distributed-systems/README.md) — Failure, delivery semantics, consensus, observability.
 10. [Senior Behavioral & Leadership](./10-senior-behavioral-and-leadership/README.md) — Decisions, decomposition, mentorship, communication.
 11. [Real Situations](./11-real-situations/README.md) — Incidents, tradeoff dilemmas, migrations, war stories.
 12. [Product & Business](./12-product-and-business/README.md) — Product sense, metrics, domain modeling, cross-functional.

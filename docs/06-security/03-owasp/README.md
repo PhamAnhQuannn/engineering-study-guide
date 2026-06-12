@@ -2,7 +2,7 @@
 
 SQLi, XSS, CSRF, common web vulnerabilities.
 
-**Tier 9 — Security** · Difficulty: advanced
+**Tier 6 — Security** · Difficulty: advanced
 
 ## Sections
 

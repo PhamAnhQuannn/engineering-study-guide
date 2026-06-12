@@ -2,7 +2,7 @@
 
 Kafka, RabbitMQ, pub/sub, event-driven, streams.
 
-**Tier 5 — Distributed Systems** · Difficulty: core
+**Tier 9 — Distributed Systems** · Difficulty: core
 
 ## Sections
 

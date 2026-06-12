@@ -2,7 +2,7 @@
 
 Creational/structural/behavioral, when NOT to use.
 
-**Tier 6 — Code Quality & Architecture** · Difficulty: core
+**Tier 3 — Code Quality & Architecture** · Difficulty: core
 
 ## Sections
 

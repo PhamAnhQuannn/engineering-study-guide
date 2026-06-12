@@ -2,7 +2,7 @@
 
 REST, GraphQL, gRPC, versioning, idempotency.
 
-**Tier 3 — System Design** · Difficulty: core
+**Tier 7 — System Design** · Difficulty: core
 
 ## Sections
 

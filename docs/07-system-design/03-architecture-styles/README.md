@@ -2,7 +2,7 @@
 
 Monolith, microservices, event sourcing, CQRS.
 
-**Tier 3 — System Design** · Difficulty: advanced
+**Tier 7 — System Design** · Difficulty: advanced
 
 ## Sections
 

@@ -2,7 +2,7 @@
 
 HTTP/1.1/2/3, methods, status codes, headers.
 
-**Tier 8 — Networking** · Difficulty: core
+**Tier 4 — Networking** · Difficulty: core
 
 ## Sections
 

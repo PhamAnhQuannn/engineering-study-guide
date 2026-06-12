@@ -2,7 +2,7 @@
 
 OAuth, JWT, sessions, SSO, RBAC.
 
-**Tier 9 — Security** · Difficulty: advanced
+**Tier 6 — Security** · Difficulty: advanced
 
 ## Sections
 

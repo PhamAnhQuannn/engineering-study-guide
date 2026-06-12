@@ -1,4 +1,4 @@
-# Tier 5 — Distributed Systems
+# Tier 9 — Distributed Systems
 
 Failure, delivery semantics, consensus, observability.
 

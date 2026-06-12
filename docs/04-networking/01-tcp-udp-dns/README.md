@@ -2,7 +2,7 @@
 
 Transport protocols, handshakes, DNS resolution.
 
-**Tier 8 — Networking** · Difficulty: core
+**Tier 4 — Networking** · Difficulty: core
 
 ## Sections
 

@@ -2,7 +2,7 @@
 
 Rebase, bisect, conflict resolution, workflows.
 
-**Tier 7 — Infra / DevOps / Cloud** · Difficulty: core
+**Tier 8 — Infra / DevOps / Cloud** · Difficulty: core
 
 ## Sections
 

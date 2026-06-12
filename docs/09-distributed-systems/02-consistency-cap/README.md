@@ -2,7 +2,7 @@
 
 ACID/BASE, CAP, consistency models, eventual consistency.
 
-**Tier 5 — Distributed Systems** · Difficulty: advanced
+**Tier 9 — Distributed Systems** · Difficulty: advanced
 
 ## Sections
 

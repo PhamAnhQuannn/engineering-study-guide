@@ -2,7 +2,7 @@
 
 Logs, metrics, traces, alerting, SLO/SLA/SLI.
 
-**Tier 5 — Distributed Systems** · Difficulty: core
+**Tier 9 — Distributed Systems** · Difficulty: core
 
 ## Sections
 

@@ -2,7 +2,7 @@
 
 Readability, abstractions, naming, code smells.
 
-**Tier 6 — Code Quality & Architecture** · Difficulty: intro
+**Tier 3 — Code Quality & Architecture** · Difficulty: intro
 
 ## Sections
 

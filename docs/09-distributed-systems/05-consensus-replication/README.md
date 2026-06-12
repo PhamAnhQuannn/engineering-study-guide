@@ -2,7 +2,7 @@
 
 Raft/Paxos concept, leader election, quorum, replication.
 
-**Tier 5 — Distributed Systems** · Difficulty: advanced
+**Tier 9 — Distributed Systems** · Difficulty: advanced
 
 ## Sections
 

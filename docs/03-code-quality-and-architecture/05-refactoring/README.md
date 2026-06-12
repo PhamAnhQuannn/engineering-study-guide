@@ -2,7 +2,7 @@
 
 Safe refactor, legacy code, tech debt management.
 
-**Tier 6 — Code Quality & Architecture** · Difficulty: advanced
+**Tier 3 — Code Quality & Architecture** · Difficulty: advanced
 
 ## Sections
 

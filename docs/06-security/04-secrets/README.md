@@ -2,7 +2,7 @@
 
 Secrets management, key rotation, least privilege.
 
-**Tier 9 — Security** · Difficulty: core
+**Tier 6 — Security** · Difficulty: core
 
 ## Sections
 

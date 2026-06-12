@@ -2,7 +2,7 @@
 
 Joins, window functions, indexes, EXPLAIN plans.
 
-**Tier 4 — Databases** · Difficulty: core
+**Tier 5 — Databases** · Difficulty: core
 
 ## Sections
 

@@ -2,7 +2,7 @@
 
 Rate limiting, backpressure, circuit breaker, retries.
 
-**Tier 3 — System Design** · Difficulty: advanced
+**Tier 7 — System Design** · Difficulty: advanced
 
 ## Sections
 

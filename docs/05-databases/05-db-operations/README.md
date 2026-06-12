@@ -2,7 +2,7 @@
 
 Migrations, zero-downtime, pooling, N+1.
 
-**Tier 4 — Databases** · Difficulty: advanced
+**Tier 5 — Databases** · Difficulty: advanced
 
 ## Sections
 

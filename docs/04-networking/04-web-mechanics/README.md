@@ -2,7 +2,7 @@
 
 CORS, cookies, sessions, caching headers.
 
-**Tier 8 — Networking** · Difficulty: core
+**Tier 4 — Networking** · Difficulty: core
 
 ## Sections
 

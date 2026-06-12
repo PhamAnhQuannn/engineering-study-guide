@@ -87,6 +87,11 @@ export const TOPICS: TopicSeed[] = [
   { tier: 7, name: "Scaling", slug: "scaling", description: "Horizontal/vertical, load balancing, stateless design.", difficulty: "advanced", supportedTypes: DESIGN },
   { tier: 7, name: "Resilience Patterns", slug: "resilience", description: "Rate limiting, backpressure, circuit breaker, retries.", difficulty: "advanced", supportedTypes: DESIGN },
   { tier: 7, name: "Design Drills", slug: "design-drills", description: "URL shortener, feed, chat, rate limiter, notifications.", difficulty: "advanced", supportedTypes: ["SYSTEM_DESIGN", "DECISION", "ESTIMATION"] },
+  { tier: 7, name: "Social Platform Design", slug: "social-platform", description: "Follow graph, feed, stories, DMs, media pipeline, explore/discovery.", difficulty: "advanced", supportedTypes: ["SYSTEM_DESIGN", "DECISION", "ESTIMATION"] },
+  { tier: 7, name: "Collaborative Editor Design", slug: "collaborative-editor", description: "OT vs CRDT, conflict resolution, cursor presence, offline editing.", difficulty: "advanced", supportedTypes: ["SYSTEM_DESIGN", "DECISION", "ESTIMATION"] },
+  { tier: 7, name: "Distributed Scheduler Design", slug: "distributed-scheduler", description: "Exactly-once execution, leader election, clock skew, partition tolerance.", difficulty: "advanced", supportedTypes: ["SYSTEM_DESIGN", "DECISION", "ESTIMATION"] },
+  { tier: 7, name: "Multi-Vendor Marketplace Design", slug: "multi-vendor-marketplace", description: "Multi-tenancy, split payments, trust/reputation, seller isolation.", difficulty: "advanced", supportedTypes: ["SYSTEM_DESIGN", "DECISION", "ESTIMATION"] },
+  { tier: 7, name: "Video Streaming Design", slug: "video-streaming", description: "Transcoding pipeline, adaptive bitrate, CDN architecture.", difficulty: "advanced", supportedTypes: ["SYSTEM_DESIGN", "DECISION", "ESTIMATION"] },
 
   // T8 Infra / DevOps / Cloud
   { tier: 8, name: "Git Deep", slug: "git", description: "Rebase, bisect, conflict resolution, workflows.", difficulty: "core", supportedTypes: ["KNOWLEDGE", "SCENARIO", "EXPLAIN"] },
@@ -158,6 +163,7 @@ export const SPINES: SpineDef[] = [
     topics: [
       "crypto", "auth", "owasp", "secrets",
       "idea-to-system", "capacity-estimation", "architecture-styles", "api-design", "caching", "scaling", "resilience", "design-drills",
+      "social-platform", "collaborative-editor", "distributed-scheduler", "multi-vendor-marketplace", "video-streaming",
       "git", "linux-os", "cicd", "containers", "cloud", "iac",
     ],
   },
@@ -174,6 +180,14 @@ export const SPINES: SpineDef[] = [
     ],
   },
 ];
+
+export const SYSTEM_SLUGS = [
+  "social-platform",
+  "collaborative-editor",
+  "distributed-scheduler",
+  "multi-vendor-marketplace",
+  "video-streaming",
+] as const;
 
 // Canonical learning order across the whole curriculum — the SINGLE SOURCE OF TRUTH
 // for how topics are ordered in every nav surface (sidebar, study prev/next, the

@@ -2,7 +2,7 @@
 
 QPS, storage, bandwidth napkin math.
 
-**Tier 3 — System Design** · Difficulty: core
+**Tier 7 — System Design** · Difficulty: core
 
 ## Sections
 

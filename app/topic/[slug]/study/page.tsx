@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { Markdown } from "@/components/Markdown";
-import { TopicSidebar } from "@/components/TopicSidebar";
 import { Toc, type TocItem } from "@/components/Toc";
 import { TOPICS, TIERS, orderIndex } from "@/lib/taxonomy";
 
@@ -83,13 +82,9 @@ export default async function StudyPage(props: PageProps<"/topic/[slug]/study">)
   };
 
   return (
-    <div className="lg:grid lg:grid-cols-[220px_minmax(0,1fr)_200px] lg:gap-6">
+    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_200px] lg:gap-6">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
-
-      <aside className="hidden lg:block">
-        <TopicSidebar />
-      </aside>
 
       <article className="min-w-0">
         <div className="font-mono text-xs uppercase tracking-wider text-muted">

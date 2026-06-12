@@ -2,7 +2,7 @@
 
 TLS handshake, certificates, encryption in transit.
 
-**Tier 8 — Networking** · Difficulty: core
+**Tier 4 — Networking** · Difficulty: core
 
 ## Sections
 

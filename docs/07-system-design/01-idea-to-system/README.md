@@ -2,7 +2,7 @@
 
 Ideation → product type → system type → requirements → tradeoffs.
 
-**Tier 3 — System Design** · Difficulty: core
+**Tier 7 — System Design** · Difficulty: core
 
 ## Sections
 

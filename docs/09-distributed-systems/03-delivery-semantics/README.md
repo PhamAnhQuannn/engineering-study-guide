@@ -2,7 +2,7 @@
 
 Idempotency, at-least/exactly-once, dedup.
 
-**Tier 5 — Distributed Systems** · Difficulty: advanced
+**Tier 9 — Distributed Systems** · Difficulty: advanced
 
 ## Sections
 

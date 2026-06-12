@@ -2,7 +2,7 @@
 
 WebSockets, SSE, long polling, real-time tradeoffs.
 
-**Tier 8 — Networking** · Difficulty: core
+**Tier 4 — Networking** · Difficulty: core
 
 ## Sections
 

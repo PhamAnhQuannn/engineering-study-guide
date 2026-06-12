@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { isQuestionType, type QuestionTypeKey } from "@/lib/questionTypes";
-import { TopicSidebar } from "@/components/TopicSidebar";
 import { PracticeRunner } from "@/components/PracticeRunner";
 
 export const dynamic = "force-dynamic";
@@ -36,12 +35,7 @@ export default async function TopicPracticePage(props: PageProps<"/topic/[slug]/
     .sort((a, b) => b.count - a.count);
 
   return (
-    <div className="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-6">
-      <aside className="hidden lg:block">
-        <TopicSidebar />
-      </aside>
-
-      <div className="min-w-0 flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
         <div>
           <div className="font-mono text-xs uppercase tracking-wider text-muted">
             <Link href="/practice" className="hover:text-foreground">Practice</Link> / {topic.name}
@@ -57,7 +51,6 @@ export default async function TopicPracticePage(props: PageProps<"/topic/[slug]/
         ) : (
           <PracticeRunner slug={slug} availableTypes={availableTypes} />
         )}
-      </div>
     </div>
   );
 }

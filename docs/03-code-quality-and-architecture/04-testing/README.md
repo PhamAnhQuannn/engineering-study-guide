@@ -2,7 +2,7 @@
 
 Unit/integration/e2e, TDD, mocking, coverage, flaky tests.
 
-**Tier 6 — Code Quality & Architecture** · Difficulty: core
+**Tier 3 — Code Quality & Architecture** · Difficulty: core
 
 ## Sections
 
